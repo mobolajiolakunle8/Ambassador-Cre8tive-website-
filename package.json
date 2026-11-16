@@ -4,6 +4,8 @@
   "private": true,
   "description": "Ambassador Cre8tive Firebase Hosting, Firestore, Storage, and Authentication setup.",
   "scripts": {
+    "build:vercel": "node scripts/build-vercel.mjs",
+    "vercel-build": "npm run build:vercel",
     "firebase:login": "firebase login",
     "emulators": "firebase emulators:start --only auth,firestore,storage,hosting",
     "deploy": "firebase deploy --only hosting,firestore:rules,storage,database",

@@ -34,7 +34,8 @@
       "*.pyc",
       "*-debug.log",
       "*.md",
-      "Unselected files/**"
+      "Unselected files/**",
+      "vercel-static/**"
     ],
     "headers": [
       {

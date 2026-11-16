@@ -1,6 +1,6 @@
 # Ambassador Cre8tive — Firebase deployment package
 
-This package is the production-ready Firebase Hosting version of the Ambassador Cre8tive website.
+This package is the production-ready Ambassador Cre8tive website with Firebase services. For the Vercel deployment path, use `VERCEL_DEPLOYMENT.md`; Firebase Hosting instructions remain included as an alternative.
 
 ## Included
 
