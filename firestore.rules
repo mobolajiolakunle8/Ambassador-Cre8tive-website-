@@ -1,0 +1,71 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // The verified brand email is the sole initial administrator. Add a role-based model
+    // only when additional trusted administrators are intentionally introduced.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'mobolajiolakunle8@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function validCategory(category) {
+      return category in ['identity', 'campaign', 'digital', 'print'];
+    }
+
+    function validText(value, maximum) {
+      return value is string && value.size() <= maximum;
+    }
+
+    function validProject(projectId) {
+      return request.resource.data.keys().hasOnly([
+          'id', 'title', 'client', 'category', 'description', 'challenge', 'approach',
+          'deliverables', 'outcome', 'testimonial', 'testimonialAttribution', 'image',
+          'storagePath', 'imageAlt', 'date', 'featured', 'published', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'id', 'title', 'client', 'category', 'description', 'challenge', 'approach',
+          'deliverables', 'outcome', 'testimonial', 'testimonialAttribution', 'image',
+          'storagePath', 'imageAlt', 'date', 'featured', 'published', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.id == projectId
+        && validText(request.resource.data.id, 120)
+        && validText(request.resource.data.title, 120)
+        && validText(request.resource.data.client, 120)
+        && validCategory(request.resource.data.category)
+        && validText(request.resource.data.description, 650)
+        && validText(request.resource.data.challenge, 700)
+        && validText(request.resource.data.approach, 700)
+        && request.resource.data.deliverables is list
+        && request.resource.data.deliverables.size() <= 12
+        && validText(request.resource.data.outcome, 700)
+        && validText(request.resource.data.testimonial, 650)
+        && validText(request.resource.data.testimonialAttribution, 160)
+        && validText(request.resource.data.image, 2048)
+        && validText(request.resource.data.storagePath, 512)
+        && validText(request.resource.data.imageAlt, 180)
+        && validText(request.resource.data.date, 20)
+        && request.resource.data.featured is bool
+        && request.resource.data.published is bool
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /projects/{projectId} {
+      // Public pages query published projects only. Administrators can also view drafts.
+      allow get, list: if resource.data.published == true || isAdmin();
+      allow create: if isAdmin() && validProject(projectId);
+      allow update: if isAdmin()
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.createdAt == resource.data.createdAt
+        && validProject(projectId);
+      allow delete: if isAdmin();
+    }
+
+    // No other Firestore collection is public by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

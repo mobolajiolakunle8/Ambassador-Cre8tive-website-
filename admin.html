@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="Ambassador Cre8tive Firebase portfolio dashboard" />
+  <title>Admin — Ambassador Cre8tive</title>
+  <link rel="stylesheet" href="/admin.css" />
+</head>
+<body class="admin-body">
+  <main class="admin-app">
+    <header class="admin-header">
+      <a class="admin-brand" href="/index.html" aria-label="View Ambassador Cre8tive public website"><span>AC</span><strong>Ambassador<br /><em>Cre8tive</em></strong></a>
+      <div class="admin-header__actions"><a class="admin-site-link" href="/index.html" target="_blank" rel="noopener">View website ↗</a><button class="admin-logout" type="button" data-logout hidden>Sign out</button></div>
+    </header>
+
+    <section class="admin-auth" data-auth-view>
+      <div class="admin-auth__card" data-login-card>
+        <span class="admin-kicker">Firebase administrator login</span>
+        <h1>Welcome back.</h1>
+        <p>Sign in with the approved Ambassador Cre8tive administrator account to manage portfolio work and image uploads.</p>
+        <form data-login-form>
+          <label for="login-password">Password</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+          <button class="admin-primary" type="submit">Sign in <span>↗</span></button>
+          <p class="admin-message" data-login-message aria-live="polite"></p>
+        </form>
+        <div class="admin-auth__switch"><button class="admin-text-button" type="button" data-forgot-password>Forgot password?</button><span>First time here?</span><button class="admin-text-button" type="button" data-show-setup>Set up first access</button></div>
+      </div>
+
+      <div class="admin-auth__card" data-setup-card hidden>
+        <span class="admin-kicker">First-time setup</span>
+        <h1>Secure your dashboard.</h1>
+        <p>Create a password for <strong>mobolajiolakunle8@gmail.com</strong>. Firebase will send a verification email before publishing access is enabled.</p>
+        <form data-setup-form>
+          <label for="setup-password">Create password <span>10 characters minimum</span></label>
+          <input id="setup-password" name="password" type="password" minlength="10" autocomplete="new-password" required />
+          <label for="setup-confirmation">Confirm password</label>
+          <input id="setup-confirmation" name="confirmation" type="password" minlength="10" autocomplete="new-password" required />
+          <button class="admin-primary" type="submit">Create secure access <span>↗</span></button>
+          <p class="admin-message" data-setup-message aria-live="polite"></p>
+        </form>
+        <div class="admin-auth__switch"><span>Already created this account?</span><button class="admin-text-button" type="button" data-show-login>Sign in instead</button></div>
+      </div>
+
+      <div class="admin-auth__card" data-verify-card hidden>
+        <span class="admin-kicker">Verify your email</span>
+        <h1>One more secure step.</h1>
+        <p>Firebase has sent an email verification link to the approved administrator address. Verify it, then return here to unlock project management.</p>
+        <button class="admin-primary" type="button" data-check-verification>I have verified my email <span>↗</span></button>
+        <button class="admin-text-button admin-auth__secondary" type="button" data-resend-verification>Resend verification email</button>
+        <p class="admin-message" data-verify-message aria-live="polite"></p>
+        <div class="admin-auth__switch"><button class="admin-text-button" type="button" data-verify-sign-out>Use another account</button></div>
+      </div>
+    </section>
+
+    <section class="admin-dashboard" data-dashboard hidden>
+      <aside class="admin-sidebar">
+        <span class="admin-kicker">Firebase content manager</span>
+        <h1>Project<br /><em>workspace.</em></h1>
+        <p>Upload Africa-centred imagery, manage case-study proof, and publish completed projects directly to the public portfolio.</p>
+        <dl class="admin-stats"><div><dt data-project-count>0</dt><dd>projects saved</dd></div><div><dt data-published-count>0</dt><dd>currently visible</dd></div></dl>
+        <p class="admin-sidebar__note">Tip: use wide JPG, PNG, or WebP images for the strongest crop. Firebase Storage accepts images up to 10 MB. Add client quotes only when you have permission to publish them.</p>
+      </aside>
+
+      <div class="admin-content">
+        <section class="admin-seed" data-seed-panel hidden aria-labelledby="seed-title"><div><span class="admin-kicker">First launch</span><h2 id="seed-title">Bring in your starter work.</h2><p>Import the five existing portfolio entries into Firestore once. You can edit or remove them afterwards.</p></div><div><button class="admin-primary" type="button" data-seed-projects>Import starter portfolio <span>↗</span></button><p class="admin-message" data-seed-message aria-live="polite"></p></div></section>
+
+        <section class="admin-panel" aria-labelledby="project-form-title">
+          <div class="admin-panel__heading"><div><span class="admin-kicker">Portfolio editor</span><h2 id="project-form-title" data-form-heading>Add a project</h2></div><button class="admin-text-button" type="button" data-cancel-edit hidden>Cancel edit</button></div>
+          <form class="project-form" data-project-form>
+            <input type="hidden" name="id" data-project-id />
+            <input type="hidden" name="image" data-project-image />
+            <input type="hidden" name="storagePath" data-project-storage-path />
+            <div class="admin-form-grid">
+              <div class="admin-field"><label for="project-title">Project title *</label><input id="project-title" name="title" maxlength="120" required placeholder="e.g. Orbit & Co." /></div>
+              <div class="admin-field"><label for="project-client">Client / project type</label><input id="project-client" name="client" maxlength="120" placeholder="e.g. Brand identity project" /></div>
+              <div class="admin-field"><label for="project-category">Category *</label><select id="project-category" name="category" required><option value="identity">Brand identity</option><option value="campaign">Campaign</option><option value="digital">Digital content</option><option value="print">Print</option></select></div>
+              <div class="admin-field"><label for="project-date">Project date</label><input id="project-date" name="date" type="date" /></div>
+              <div class="admin-field admin-field--full"><label for="project-description">Short description</label><textarea id="project-description" name="description" maxlength="650" placeholder="What did Ambassador Cre8tive create for this project?"></textarea></div>
+              <div class="admin-field admin-field--full"><label for="project-challenge">The challenge</label><textarea id="project-challenge" name="challenge" maxlength="700" placeholder="What did the client or brand need this work to solve?"></textarea></div>
+              <div class="admin-field admin-field--full"><label for="project-approach">Our approach</label><textarea id="project-approach" name="approach" maxlength="700" placeholder="How did Ambassador Cre8tive respond creatively and strategically?"></textarea></div>
+              <div class="admin-field admin-field--full"><label for="project-deliverables">Deliverables</label><textarea id="project-deliverables" name="deliverables" maxlength="1600" placeholder="Add one deliverable per line, for example:&#10;Brand identity system&#10;Social media template suite"></textarea><small>These appear as a clear project scope on the public case study.</small></div>
+              <div class="admin-field admin-field--full"><label for="project-outcome">Designed outcome / impact</label><textarea id="project-outcome" name="outcome" maxlength="700" placeholder="Describe the result, intended impact, or practical value of the work. Use verified facts where available."></textarea></div>
+              <div class="admin-field admin-field--full"><label for="project-testimonial">Client testimonial <span>optional — use verified quotes only</span></label><textarea id="project-testimonial" name="testimonial" maxlength="650" placeholder="Add a genuine client quote when you have permission to publish it."></textarea></div>
+              <div class="admin-field"><label for="project-testimonial-attribution">Testimonial attribution</label><input id="project-testimonial-attribution" name="testimonialAttribution" maxlength="160" placeholder="Name, role, or organisation" /></div>
+              <div class="admin-field"><label for="project-alt">Image description</label><input id="project-alt" name="imageAlt" maxlength="180" placeholder="Describe the image for screen-reader users" /></div>
+            </div>
+
+            <div class="admin-upload" data-dropzone>
+              <input class="admin-upload__input" id="project-upload" data-upload-input type="file" accept="image/jpeg,image/png,image/webp" />
+              <div class="admin-upload__empty" data-upload-empty><span>↑</span><strong>Upload project image</strong><small>Drop a JPG, PNG, or WebP here, or choose a file</small></div>
+              <figure class="admin-upload__preview" data-upload-preview hidden><img data-preview-image src="" alt="Selected project preview" /><button type="button" data-clear-image aria-label="Remove selected image">×</button></figure>
+              <p class="admin-upload__status" data-upload-status aria-live="polite"></p>
+            </div>
+
+            <div class="admin-checks"><label><input name="featured" type="checkbox" /> Feature this project first</label><label><input name="published" type="checkbox" checked /> Publish on public portfolio</label></div>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-project>Save project <span>↗</span></button><p class="admin-message" data-project-message aria-live="polite"></p></div>
+          </form>
+        </section>
+
+        <section class="admin-panel admin-projects" aria-labelledby="saved-projects-title">
+          <div class="admin-panel__heading"><div><span class="admin-kicker">Portfolio collection</span><h2 id="saved-projects-title">Saved projects</h2></div><button class="admin-text-button" type="button" data-refresh-projects>Refresh</button></div>
+          <div class="admin-project-list" data-project-list aria-live="polite"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <script src="/admin.js"></script>
+</body>
+</html>
