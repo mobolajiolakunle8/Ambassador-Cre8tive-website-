@@ -7,7 +7,7 @@ This package is the production-ready Ambassador Cre8tive website with Firebase s
 - Public responsive website pages, local fonts, and Africa-centred imagery
 - Firebase portfolio dashboard at `/admin`
 - Firebase Authentication integration for `mobolajiolakunle8@gmail.com`
-- Cloud Firestore project and case-study integration
+- Cloud Firestore project and case-study integration, private enquiry CRM, and newsletter-consent records
 - Firebase Storage image-upload integration
 - Firestore, Storage, and Realtime Database security rules
 - Firebase Hosting configuration, `.firebaserc`, `package.json`, and lockfile
@@ -48,6 +48,7 @@ npx firebase deploy --only hosting,firestore:rules,storage
 ## Security notes
 
 - Public visitors can only read Firestore projects marked `published: true`.
-- Only the verified `mobolajiolakunle8@gmail.com` Firebase account can manage drafts, uploads, and projects.
+- Only the verified `mobolajiolakunle8@gmail.com` Firebase account can manage drafts, uploads, projects, private briefs, and newsletter contacts.
 - Realtime Database is locked by default because the site uses Firestore real-time updates instead.
-- The local Python preview server, local JSON data, and local uploads are intentionally excluded from this production package.
+- The local Python preview server, local JSON data, local uploads, Vercel API source, and environment files are intentionally excluded from Firebase Hosting output.
+- Firebase Hosting retains Firestore lead capture and the dashboard. Use the Vercel package for Resend notifications, signed newsletter delivery/unsubscribe routes, and Vercel Web Analytics.

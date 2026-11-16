@@ -19,7 +19,7 @@
       <div class="admin-auth__card" data-login-card>
         <span class="admin-kicker">Firebase administrator login</span>
         <h1>Welcome back.</h1>
-        <p>Sign in with the approved Ambassador Cre8tive administrator account to manage portfolio work and image uploads.</p>
+        <p>Sign in with the approved Ambassador Cre8tive administrator account to manage portfolio work, incoming project briefs, newsletter contacts, and image uploads.</p>
         <form data-login-form>
           <label for="login-password">Password</label>
           <input id="login-password" name="password" type="password" autocomplete="current-password" required />
@@ -59,8 +59,8 @@
       <aside class="admin-sidebar">
         <span class="admin-kicker">Firebase content manager</span>
         <h1>Project<br /><em>workspace.</em></h1>
-        <p>Upload Africa-centred imagery, manage case-study proof, and publish completed projects directly to the public portfolio.</p>
-        <dl class="admin-stats"><div><dt data-project-count>0</dt><dd>projects saved</dd></div><div><dt data-published-count>0</dt><dd>currently visible</dd></div></dl>
+        <p>Upload Africa-centred imagery, manage case-study proof, review incoming project briefs, and publish completed projects directly to the public portfolio.</p>
+        <dl class="admin-stats"><div><dt data-project-count>0</dt><dd>projects saved</dd></div><div><dt data-published-count>0</dt><dd>currently visible</dd></div><div><dt data-enquiry-count>0</dt><dd>new enquiries</dd></div><div><dt data-subscriber-count>0</dt><dd>newsletter contacts</dd></div></dl>
         <p class="admin-sidebar__note">Tip: use wide JPG, PNG, or WebP images for the strongest crop. Firebase Storage accepts images up to 10 MB. Add client quotes only when you have permission to publish them.</p>
       </aside>
 
@@ -103,6 +103,33 @@
         <section class="admin-panel admin-projects" aria-labelledby="saved-projects-title">
           <div class="admin-panel__heading"><div><span class="admin-kicker">Portfolio collection</span><h2 id="saved-projects-title">Saved projects</h2></div><button class="admin-text-button" type="button" data-refresh-projects>Refresh</button></div>
           <div class="admin-project-list" data-project-list aria-live="polite"></div>
+        </section>
+
+        <section class="admin-panel admin-enquiries" aria-labelledby="enquiries-title">
+          <div class="admin-panel__heading"><div><span class="admin-kicker">Lead inbox</span><h2 id="enquiries-title">Project enquiries</h2></div><button class="admin-text-button" type="button" data-refresh-enquiries>Refresh</button></div>
+          <p class="admin-panel__intro">Briefs submitted from the website are private. Update their stage and add internal notes here; neither is visible to the enquirer.</p>
+          <div class="admin-enquiry-list" data-enquiry-list aria-live="polite"></div>
+        </section>
+
+        <section class="admin-panel admin-subscribers" aria-labelledby="subscribers-title">
+          <div class="admin-panel__heading"><div><span class="admin-kicker">Newsletter consent list</span><h2 id="subscribers-title">Subscribed contacts</h2></div><button class="admin-text-button" type="button" data-refresh-subscribers>Refresh</button></div>
+          <p class="admin-panel__intro">Use only with consent-based newsletter delivery. Subscribers can opt out through a signed link in every campaign.</p>
+          <div class="admin-subscriber-list" data-subscriber-list aria-live="polite"></div>
+        </section>
+
+        <section class="admin-panel admin-newsletter" aria-labelledby="newsletter-campaign-title">
+          <div class="admin-panel__heading"><div><span class="admin-kicker">Consent-based delivery</span><h2 id="newsletter-campaign-title">Send creative notes</h2></div></div>
+          <p class="admin-panel__intro">This sends only to currently subscribed contacts through the secure Vercel route. Configure Firebase Admin, Resend, the final public site URL, and a newsletter unsubscribe secret before use. Every send includes an unsubscribe link.</p>
+          <form class="admin-newsletter-form" data-newsletter-campaign-form>
+            <div class="admin-form-grid">
+              <div class="admin-field admin-field--full"><label for="newsletter-campaign-id">Resume campaign ID <span>only after an interrupted send</span></label><input id="newsletter-campaign-id" name="campaignId" maxlength="160" placeholder="Leave blank to start a new campaign" /></div>
+              <div class="admin-field admin-field--full"><label for="newsletter-subject">Email subject <span>required for a new campaign</span></label><input id="newsletter-subject" name="subject" maxlength="180" placeholder="e.g. A clearer way to show up this month" /></div>
+              <div class="admin-field admin-field--full"><label for="newsletter-preview">Preview text</label><input id="newsletter-preview" name="previewText" maxlength="260" placeholder="Optional inbox preview" /></div>
+              <div class="admin-field admin-field--full"><label for="newsletter-html">Email content <span>required for a new campaign</span></label><textarea id="newsletter-html" name="html" maxlength="60000" placeholder="Use email-safe HTML, for example:&#10;&lt;h1&gt;A note from Ambassador Cre8tive&lt;/h1&gt;&#10;&lt;p&gt;Your message goes here.&lt;/p&gt;"></textarea><small>Use only approved content. Do not include sensitive project information or unsubscribed contacts.</small></div>
+            </div>
+            <label class="admin-consent-check"><input name="confirm" type="checkbox" required /> I confirm this message is intended for consented subscribers and includes no fabricated proof or sensitive information.</label>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit" data-send-newsletter>Send to subscribed contacts <span>↗</span></button><p class="admin-message" data-newsletter-campaign-message aria-live="polite"></p></div>
+          </form>
         </section>
       </div>
     </section>

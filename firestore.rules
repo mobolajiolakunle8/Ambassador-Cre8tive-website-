@@ -2,8 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // The verified brand email is the sole initial administrator. Add a role-based model
-    // only when additional trusted administrators are intentionally introduced.
+    // The verified brand email is the initial owner. The rules intentionally keep all
+    // content-management access server-enforced rather than relying on client UI checks.
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email == 'mobolajiolakunle8@gmail.com'
@@ -16,6 +16,10 @@ service cloud.firestore {
 
     function validText(value, maximum) {
       return value is string && value.size() <= maximum;
+    }
+
+    function validStatus(status) {
+      return status in ['new', 'contacted', 'proposal', 'won', 'closed'];
     }
 
     function validProject(projectId) {
@@ -52,6 +56,75 @@ service cloud.firestore {
         && request.resource.data.updatedAt is timestamp;
     }
 
+    function publicEnquiryFields() {
+      return request.resource.data.keys().hasOnly([
+          'name', 'email', 'business', 'businessType', 'service', 'timeline', 'budget',
+          'website', 'message', 'project', 'status', 'source', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'name', 'email', 'business', 'businessType', 'service', 'timeline', 'budget',
+          'website', 'message', 'project', 'status', 'source', 'createdAt', 'updatedAt'
+        ]);
+    }
+
+    function validPublicEnquiry() {
+      return publicEnquiryFields()
+        && validText(request.resource.data.name, 120)
+        && validText(request.resource.data.email, 254)
+        && validText(request.resource.data.business, 160)
+        && validText(request.resource.data.businessType, 80)
+        && validText(request.resource.data['service'], 120)
+        && validText(request.resource.data.timeline, 80)
+        && validText(request.resource.data.budget, 120)
+        && validText(request.resource.data.website, 500)
+        && validText(request.resource.data.message, 3000)
+        && validText(request.resource.data.project, 160)
+        && request.resource.data.status == 'new'
+        && request.resource.data.source == 'website'
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function validAdminEnquiry() {
+      return request.resource.data.keys().hasOnly([
+          'name', 'email', 'business', 'businessType', 'service', 'timeline', 'budget',
+          'website', 'message', 'project', 'status', 'source', 'adminNotes', 'notificationSentAt', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'name', 'email', 'business', 'businessType', 'service', 'timeline', 'budget',
+          'website', 'message', 'project', 'status', 'source', 'adminNotes', 'createdAt', 'updatedAt'
+        ])
+        && validText(request.resource.data.name, 120)
+        && validText(request.resource.data.email, 254)
+        && validText(request.resource.data.business, 160)
+        && validText(request.resource.data.businessType, 80)
+        && validText(request.resource.data['service'], 120)
+        && validText(request.resource.data.timeline, 80)
+        && validText(request.resource.data.budget, 120)
+        && validText(request.resource.data.website, 500)
+        && validText(request.resource.data.message, 3000)
+        && validText(request.resource.data.project, 160)
+        && validText(request.resource.data.source, 60)
+        && validStatus(request.resource.data.status)
+        && validText(request.resource.data.adminNotes, 2000)
+        && (!request.resource.data.keys().hasAll(['notificationSentAt']) || request.resource.data.notificationSentAt is timestamp)
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function validPendingSubscriber(subscriberId) {
+      // A browser can request a newsletter confirmation but cannot create a deliverable
+      // subscriber. Server-side confirmation is required before campaign delivery.
+      return request.resource.data.keys().hasOnly(['email', 'status', 'source', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['email', 'status', 'source', 'createdAt', 'updatedAt'])
+        && request.resource.data.email == subscriberId
+        && validText(request.resource.data.email, 254)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.source == 'website'
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
     match /projects/{projectId} {
       // Public pages query published projects only. Administrators can also view drafts.
       allow get, list: if resource.data.published == true || isAdmin();
@@ -61,6 +134,23 @@ service cloud.firestore {
         && request.resource.data.createdAt == resource.data.createdAt
         && validProject(projectId);
       allow delete: if isAdmin();
+    }
+
+    match /enquiries/{enquiryId} {
+      // Visitors can create a tightly validated brief. Only the administrator can inspect it.
+      allow create: if validPublicEnquiry() || (isAdmin() && validAdminEnquiry());
+      allow get, list: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.createdAt == resource.data.createdAt
+        && validAdminEnquiry();
+      allow delete: if isAdmin();
+    }
+
+    match /subscribers/{subscriberId} {
+      // Newsletter addresses are never readable from the public website. A public form can
+      // create only a pending confirmation request; the server confirms the subscription.
+      allow create: if validPendingSubscriber(subscriberId);
+      allow get, list, update, delete: if isAdmin();
     }
 
     // No other Firestore collection is public by default.

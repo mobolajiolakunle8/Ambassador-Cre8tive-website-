@@ -1,12 +1,12 @@
 # Ambassador Cre8tive — Vercel deployment
 
-This package supports Vercel static deployment while Firebase continues to provide Authentication, Firestore, Storage, and Analytics.
+This package supports Vercel static deployment and small same-origin Vercel API routes while Firebase provides Authentication, Firestore, Storage, and Firebase Analytics.
 
 ## What Vercel serves
 
-Vercel runs `npm run build:vercel` and deploys the generated `vercel-static/` directory only. The build copies public website files and assets, then generates `firebase-config.js` from environment variables.
+Vercel installs production dependencies only, runs `npm run build:vercel`, and deploys the generated `vercel-static/` directory as public pages. The build copies public website files and assets, then generates `firebase-config.js` from environment variables. Vercel also deploys the root `api/` directory as server-side functions for optional Resend enquiry notification, double-opt-in newsletter confirmation, newsletter delivery, and signed unsubscribe handling.
 
-The Python preview server, local JSON data, local uploads, Firebase rules, and environment files are not included in the public Vercel output.
+The Python preview server, local JSON data, local uploads, Firebase rules, and environment files are not included in the public Vercel output. The API source is server-side and its private credentials remain Vercel environment variables.
 
 ## Configure Vercel environment variables
 
@@ -22,8 +22,23 @@ In **Vercel → Project → Settings → Environment Variables**, add these valu
 | `FIREBASE_APP_ID` | `1:701579929185:web:3fa00922c71235b1f0ac20` |
 | `FIREBASE_MEASUREMENT_ID` | `G-8DZ648WY2L` |
 | `FIREBASE_ADMIN_EMAIL` | `mobolajiolakunle8@gmail.com` |
+| `BOOKING_URL` | Optional public calendar booking URL |
+| `WHATSAPP_NUMBER` | Optional public WhatsApp number in international digits, e.g. `2349030192034` |
+| `PUBLIC_SITE_URL` | Final canonical HTTPS website URL |
+| `GOOGLE_BUSINESS_PROFILE_URL` | Optional real Google Business Profile URL |
+| `GOOGLE_SITE_VERIFICATION` | Optional Search Console meta-verification token |
+| `FIREBASE_APP_CHECK_SITE_KEY` | Optional public reCAPTCHA App Check site key |
+| `VERCEL_ANALYTICS_ENABLED` | `true` to load Vercel Web Analytics and mirror non-sensitive conversion events |
+| `RESEND_API_KEY` | **Private** server-side Resend key for enquiry notifications |
+| `CONTACT_NOTIFICATION_EMAIL` | **Private** notification recipient |
+| `CONTACT_FROM_EMAIL` | **Private** Resend-verified sender address |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | **Private** Firebase Admin service-account JSON for notification and newsletter functions — never browser code |
+| `CRON_SECRET` | **Private** secret protecting scheduled newsletter-batch tasks |
+| `NEWSLETTER_UNSUBSCRIBE_SECRET` | **Private** 32+ character signing secret for newsletter confirmation and unsubscribe links |
 
-These are Firebase **web configuration values**, not a Firebase service-account credential. Do not add private keys, an admin password, or a service-account JSON file to Vercel.
+The `FIREBASE_*` web values marked above as public are Firebase **web configuration values**, not a Firebase service-account credential. Add private values only in Vercel’s encrypted environment settings. Do not add private keys, an admin password, or a service-account JSON file to browser code or Git.
+
+For the rollout and safety checklist, see [`OPERATIONS_GUIDE.md`](OPERATIONS_GUIDE.md).
 
 ## Deploy with Vercel
 
@@ -34,6 +49,8 @@ These are Firebase **web configuration values**, not a Firebase service-account 
 3. Add the environment variables above.
 4. Vercel detects `vercel.json` automatically.
 5. Deploy.
+6. In Vercel → Analytics, enable Web Analytics if `VERCEL_ANALYTICS_ENABLED=true`.
+7. Open `/api/enquiry` only through a real form submission; test `/admin`, booking, WhatsApp, newsletter opt-in, and an unsubscribe test email after Firebase is configured.
 
 ### Option 2 — Vercel CLI
 

@@ -1,9 +1,11 @@
 # Ambassador Cre8tive Firebase setup
 
-The public site and admin dashboard now use Firebase in production:
+> For the complete enquiry CRM, newsletter-consent, App Check, backup, multi-admin, Resend, booking, analytics, and local-search runbook, see [`OPERATIONS_GUIDE.md`](OPERATIONS_GUIDE.md).
+
+The public site and admin dashboard are configured to use Firebase in production once deployed:
 
 - **Firebase Authentication** — password sign-in for `mobolajiolakunle8@gmail.com`
-- **Cloud Firestore** — published projects, drafts, case-study details, and verified testimonials
+- **Cloud Firestore** — published projects, drafts, case-study details, verified testimonials, private project briefs, and newsletter consents
 - **Cloud Storage** — JPG, PNG, and WebP project images
 - **Firebase Hosting** — static public site and admin dashboard
 - **Realtime Database** — intentionally locked because this site does not use it
@@ -38,7 +40,7 @@ The repository is already linked to `website-f3cc6` through `.firebaserc`, so `f
 4. Return to `/admin`, sign in, and use **I have verified my email** if prompted.
 5. Select **Import starter portfolio** once to move the existing example projects into Firestore.
 
-Only that verified email can read drafts, upload images, or create, edit, publish, and delete projects. The Firestore and Storage rules enforce this on the server; client-side checks are only convenience features.
+Only that verified email can read drafts, upload images, or create, edit, publish, and delete projects. It can also read private project briefs and confirmed newsletter-consent records in the dashboard. Public newsletter requests are stored only as pending records; Vercel’s server-side confirmation flow must activate them before delivery. The Firestore and Storage rules enforce this on the server; client-side checks are only convenience features.
 
 ## Deployment notes
 

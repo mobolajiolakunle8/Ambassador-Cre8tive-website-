@@ -1,6 +1,13 @@
 (() => {
   const $ = (selector, parent = document) => parent.querySelector(selector);
   const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&quot;' })[char]);
+  const isEmail = (value = '') => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value).trim());
+  const safeExternalUrl = (value = '') => {
+    try {
+      const url = new URL(String(value).trim());
+      return ['https:', 'http:'].includes(url.protocol) ? url.toString() : '';
+    } catch { return ''; }
+  };
   const categoryLabel = (category) => ({ identity: 'Brand identity', campaign: 'Campaign', digital: 'Digital content', print: 'Print' }[category] || category);
   const dateLabel = (value) => {
     if (!value) return 'Undated project';
@@ -32,6 +39,9 @@
   const saveProject = $('[data-save-project]');
   const seedPanel = $('[data-seed-panel]');
   const seedButton = $('[data-seed-projects]');
+  const enquiryList = $('[data-enquiry-list]');
+  const subscriberList = $('[data-subscriber-list]');
+  const newsletterCampaignForm = $('[data-newsletter-campaign-form]');
 
   let firebase = null;
   let authSdk = null;
@@ -39,7 +49,11 @@
   let storageSdk = null;
   let currentUser = null;
   let projects = [];
+  let enquiries = [];
+  let subscribers = [];
   let unsubscribeProjects = null;
+  let unsubscribeEnquiries = null;
+  let unsubscribeSubscribers = null;
 
   const starterProjects = [
     {
@@ -92,9 +106,17 @@
     return error?.message || 'Something went wrong. Please try again.';
   };
 
+  const timestampLabel = (value) => {
+    const date = value?.toDate?.() || (value ? new Date(value) : null);
+    if (!date || Number.isNaN(date.getTime())) return 'Just received';
+    return date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  };
+  const enquiryStatusLabel = (status) => ({ new: 'New', contacted: 'Contacted', proposal: 'Proposal', won: 'Won', closed: 'Closed' }[status] || 'New');
   const updateStats = () => {
     $('[data-project-count]').textContent = projects.length;
     $('[data-published-count]').textContent = projects.filter((project) => project.published).length;
+    $('[data-enquiry-count]').textContent = enquiries.filter((enquiry) => enquiry.status === 'new').length;
+    $('[data-subscriber-count]').textContent = subscribers.length;
   };
 
   const renderProjects = () => {
@@ -139,6 +161,162 @@
     if (unsubscribeProjects) unsubscribeProjects();
     unsubscribeProjects = null;
     projects = [];
+  };
+
+  const renderEnquiries = () => {
+    updateStats();
+    if (!enquiryList) return;
+    if (!enquiries.length) {
+      enquiryList.innerHTML = '<p class="admin-empty">No website project briefs have arrived yet.</p>';
+      return;
+    }
+    enquiryList.innerHTML = [...enquiries]
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+      .map((enquiry) => {
+        const email = isEmail(enquiry.email) ? String(enquiry.email).trim() : '';
+        const website = safeExternalUrl(enquiry.website);
+        return `
+          <article class="admin-enquiry-row" data-enquiry-id="${escapeHtml(enquiry.id)}">
+            <div class="admin-enquiry-row__head"><div><small>${escapeHtml(timestampLabel(enquiry.createdAt))}</small><h3>${escapeHtml(enquiry.name || 'Unnamed enquiry')}</h3>${email ? `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>` : '<span>No valid email supplied</span>'}</div><span class="admin-enquiry-status status-${escapeHtml(enquiry.status || 'new')}">${escapeHtml(enquiryStatusLabel(enquiry.status))}</span></div>
+            <dl class="admin-enquiry-details">
+              ${enquiry.business ? `<div><dt>Business</dt><dd>${escapeHtml(enquiry.business)}</dd></div>` : ''}
+              ${enquiry.businessType ? `<div><dt>Type</dt><dd>${escapeHtml(enquiry.businessType)}</dd></div>` : ''}
+              ${enquiry.service ? `<div><dt>Service</dt><dd>${escapeHtml(enquiry.service)}</dd></div>` : ''}
+              ${enquiry.timeline ? `<div><dt>Timeline</dt><dd>${escapeHtml(enquiry.timeline)}</dd></div>` : ''}
+              ${enquiry.budget ? `<div><dt>Budget</dt><dd>${escapeHtml(enquiry.budget)}</dd></div>` : ''}
+              ${website ? `<div><dt>Reference</dt><dd><a href="${escapeHtml(website)}" target="_blank" rel="noopener">Open link ↗</a></dd></div>` : ''}
+            </dl>
+            <p class="admin-enquiry-message">${escapeHtml(enquiry.message || 'No project detail supplied.')}</p>
+            <div class="admin-enquiry-controls"><label>Stage <select data-enquiry-status><option value="new" ${enquiry.status === 'new' ? 'selected' : ''}>New</option><option value="contacted" ${enquiry.status === 'contacted' ? 'selected' : ''}>Contacted</option><option value="proposal" ${enquiry.status === 'proposal' ? 'selected' : ''}>Proposal</option><option value="won" ${enquiry.status === 'won' ? 'selected' : ''}>Won</option><option value="closed" ${enquiry.status === 'closed' ? 'selected' : ''}>Closed</option></select></label><label>Internal notes <textarea data-enquiry-notes maxlength="2000" placeholder="Private follow-up notes only">${escapeHtml(enquiry.adminNotes || '')}</textarea></label><button class="admin-text-button" type="button" data-save-enquiry>Save workflow</button></div>
+          </article>
+        `;
+      }).join('');
+  };
+
+  const renderSubscribers = () => {
+    updateStats();
+    if (!subscriberList) return;
+    if (!subscribers.length) {
+      subscriberList.innerHTML = '<p class="admin-empty">No newsletter contacts have opted in yet.</p>';
+      return;
+    }
+    subscriberList.innerHTML = [...subscribers]
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+      .map((subscriber) => {
+        const email = isEmail(subscriber.email) ? String(subscriber.email).trim() : '';
+        return `<article class="admin-subscriber-row">${email ? `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>` : '<span>Invalid subscriber record</span>'}<small>Joined ${escapeHtml(timestampLabel(subscriber.createdAt))}</small></article>`;
+      })
+      .join('');
+  };
+
+  const subscribeToEnquiries = () => {
+    if (!firebase || !firestore || unsubscribeEnquiries || !enquiryList) return;
+    enquiryList.innerHTML = '<p class="admin-empty">Loading private project briefs…</p>';
+    unsubscribeEnquiries = firestore.onSnapshot(firestore.collection(firebase.db, 'enquiries'), (snapshot) => {
+      enquiries = snapshot.docs.map((item) => ({ ...item.data(), id: item.id }));
+      renderEnquiries();
+    }, (error) => { enquiryList.innerHTML = `<p class="admin-empty">${escapeHtml(authErrorMessage(error))}</p>`; });
+  };
+
+  const subscribeToSubscribers = () => {
+    if (!firebase || !firestore || unsubscribeSubscribers || !subscriberList) return;
+    subscriberList.innerHTML = '<p class="admin-empty">Loading subscribed contacts…</p>';
+    unsubscribeSubscribers = firestore.onSnapshot(firestore.collection(firebase.db, 'subscribers'), (snapshot) => {
+      subscribers = snapshot.docs.map((item) => ({ ...item.data(), id: item.id })).filter((subscriber) => subscriber.status === 'subscribed');
+      renderSubscribers();
+    }, (error) => { subscriberList.innerHTML = `<p class="admin-empty">${escapeHtml(authErrorMessage(error))}</p>`; });
+  };
+
+  const stopLeadSubscriptions = () => {
+    if (unsubscribeEnquiries) unsubscribeEnquiries();
+    if (unsubscribeSubscribers) unsubscribeSubscribers();
+    unsubscribeEnquiries = null;
+    unsubscribeSubscribers = null;
+    enquiries = [];
+    subscribers = [];
+    updateStats();
+  };
+
+  const saveEnquiryWorkflow = async (row, button) => {
+    const id = row?.dataset.enquiryId;
+    if (!id || !firestore || !firebase) return;
+    button.disabled = true;
+    const original = button.textContent;
+    button.textContent = 'Saving…';
+    try {
+      await firestore.updateDoc(firestore.doc(firebase.db, 'enquiries', id), {
+        status: row.querySelector('[data-enquiry-status]').value,
+        adminNotes: String(row.querySelector('[data-enquiry-notes]').value || '').trim().slice(0, 2000),
+        updatedAt: firestore.serverTimestamp(),
+      });
+      button.textContent = 'Saved';
+      window.setTimeout(() => { button.textContent = original; }, 1300);
+    } catch (error) {
+      window.alert(authErrorMessage(error));
+      button.textContent = original;
+    } finally {
+      button.disabled = false;
+    }
+  };
+
+  const sendNewsletterCampaign = async () => {
+    if (!newsletterCampaignForm || !currentUser) return;
+    const data = new FormData(newsletterCampaignForm);
+    const existingCampaignId = String(data.get('campaignId') || '').trim();
+    const subject = String(data.get('subject') || '').trim();
+    const html = String(data.get('html') || '').trim();
+    const message = $('[data-newsletter-campaign-message]');
+    const button = $('[data-send-newsletter]', newsletterCampaignForm);
+    if (!data.get('confirm')) {
+      setMessage(message, 'Confirm that this is a consent-based campaign before sending.', true);
+      return;
+    }
+    if (!existingCampaignId && (!subject || !html)) {
+      setMessage(message, 'Add a subject and email content before starting a new campaign.', true);
+      return;
+    }
+    const confirmation = existingCampaignId
+      ? 'Continue this saved newsletter campaign? It will send the next unsent batch only.'
+      : 'Send this newsletter to every currently subscribed contact? This cannot be recalled.';
+    if (!window.confirm(confirmation)) return;
+
+    button.disabled = true;
+    let campaignId = existingCampaignId;
+    let sent = 0;
+    let hasMore = true;
+    let batch = 0;
+    try {
+      while (hasMore && batch < 50) {
+        batch += 1;
+        setMessage(message, `Sending newsletter batch ${batch}…`);
+        const token = await currentUser.getIdToken();
+        const payload = campaignId
+          ? { campaignId }
+          : { subject, previewText: String(data.get('previewText') || '').trim(), html };
+        const response = await fetch('/api/newsletter', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'Newsletter delivery failed.');
+        campaignId = result.campaignId || campaignId;
+        sent += Number(result.sentCount || 0);
+        hasMore = Boolean(result.hasMore);
+      }
+      if (hasMore) {
+        newsletterCampaignForm.elements.campaignId.value = campaignId;
+        setMessage(message, `Sent ${sent} email${sent === 1 ? '' : 's'} so far. Continue campaign ${campaignId} to deliver the next batch.`, true);
+      } else {
+        newsletterCampaignForm.reset();
+        setMessage(message, sent ? `Campaign complete: ${sent} email${sent === 1 ? '' : 's'} sent to currently subscribed contacts.` : 'No currently subscribed contacts were available for this campaign.');
+      }
+    } catch (error) {
+      if (campaignId) newsletterCampaignForm.elements.campaignId.value = campaignId;
+      setMessage(message, `${error?.message || 'Newsletter delivery failed.'}${campaignId ? ` Resume with campaign ID ${campaignId}; do not start a second campaign.` : ''}`, true);
+    } finally {
+      button.disabled = false;
+    }
   };
 
   const setPreview = (url = '', alt = '', storagePath = '') => {
@@ -345,6 +523,7 @@
     currentUser = user;
     if (!user) {
       stopProjectSubscription();
+      stopLeadSubscriptions();
       showMode('login');
       return;
     }
@@ -357,11 +536,14 @@
     }
     if (!firebase.isApprovedAdmin(user)) {
       stopProjectSubscription();
+      stopLeadSubscriptions();
       showMode('verify');
       return;
     }
     showMode('dashboard');
     subscribeToProjects();
+    subscribeToEnquiries();
+    subscribeToSubscribers();
   };
 
   const bindEvents = () => {
@@ -473,10 +655,23 @@
     });
 
     projectForm?.addEventListener('submit', (event) => { event.preventDefault(); saveCurrentProject(); });
+    newsletterCampaignForm?.addEventListener('submit', (event) => { event.preventDefault(); sendNewsletterCampaign(); });
     cancelEdit?.addEventListener('click', resetForm);
     $('[data-refresh-projects]')?.addEventListener('click', () => {
       if (!unsubscribeProjects) subscribeToProjects();
       setMessage($('[data-project-message]'), 'Firebase changes sync automatically while this dashboard is open.');
+    });
+    $('[data-refresh-enquiries]')?.addEventListener('click', () => {
+      if (!unsubscribeEnquiries) subscribeToEnquiries();
+      renderEnquiries();
+    });
+    $('[data-refresh-subscribers]')?.addEventListener('click', () => {
+      if (!unsubscribeSubscribers) subscribeToSubscribers();
+      renderSubscribers();
+    });
+    enquiryList?.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-save-enquiry]');
+      if (button) saveEnquiryWorkflow(button.closest('[data-enquiry-id]'), button);
     });
     projectList?.addEventListener('click', (event) => {
       const editButton = event.target.closest('[data-edit-project]');

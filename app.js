@@ -126,51 +126,7 @@
     });
   });
 
-  // Static-site contact form: validates in browser, then opens a well-structured email enquiry.
-  const contactForm = document.querySelector('[data-contact-form]');
-  const contactParams = new URLSearchParams(window.location.search);
-  const suggestedTopic = contactParams.get('project') || contactParams.get('topic');
-  const suggestedService = contactParams.get('service');
-  if (contactForm && suggestedTopic) {
-    const messageField = contactForm.querySelector('[name="message"]');
-    if (messageField && !messageField.value) messageField.value = `I would like to discuss ${suggestedTopic}.`;
-  }
-  if (contactForm && suggestedService) {
-    const serviceField = contactForm.querySelector('[name="service"]');
-    if (serviceField && [...serviceField.options].some((option) => option.value === suggestedService)) serviceField.value = suggestedService;
-  }
-  contactForm?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!contactForm.checkValidity()) {
-      contactForm.reportValidity();
-      return;
-    }
-    const formData = new FormData(contactForm);
-    const name = String(formData.get('name') || '').trim();
-    const email = String(formData.get('email') || '').trim();
-    const business = String(formData.get('business') || '').trim();
-    const businessType = String(formData.get('businessType') || '').trim();
-    const service = String(formData.get('service') || '').trim();
-    const timeline = String(formData.get('timeline') || '').trim();
-    const budget = String(formData.get('budget') || '').trim();
-    const website = String(formData.get('website') || '').trim();
-    const message = String(formData.get('message') || '').trim();
-    const subject = `New Ambassador Cre8tive enquiry from ${name}`;
-    const details = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      business && `Business / brand: ${business}`,
-      businessType && `Business type: ${businessType}`,
-      `Service: ${service || 'Not specified'}`,
-      timeline && `Ideal timeline: ${timeline}`,
-      budget && `Comfortable budget: ${budget}`,
-      website && `Website / reference: ${website}`,
-    ].filter(Boolean).join('\n');
-    const mailBody = `${details}\n\nProject details:\n${message}`;
-    const status = contactForm.querySelector('[data-form-status]');
-    if (status) status.textContent = 'Your email app is opening with the project brief pre-filled. If it does not open, email us directly at mobolajiolakunle8@gmail.com.';
-    window.location.href = `mailto:mobolajiolakunle8@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
-  });
+  // Firebase lead capture, notification, and mailto fallback are handled by contact.js on the contact page.
 
   // Render useful, local results on the search page.
   const resultsRoot = document.querySelector('[data-search-results]');

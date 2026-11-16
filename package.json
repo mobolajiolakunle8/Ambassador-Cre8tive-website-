@@ -2,6 +2,7 @@
   "name": "ambassador-cre8tive",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Ambassador Cre8tive Firebase Hosting, Firestore, Storage, and Authentication setup.",
   "scripts": {
     "build:vercel": "node scripts/build-vercel.mjs",
@@ -13,12 +14,13 @@
     "deploy:rules": "firebase deploy --only firestore:rules,storage,database"
   },
   "dependencies": {
-    "firebase": "^12.8.0"
+    "firebase-admin": "^13.10.0"
   },
   "devDependencies": {
     "firebase-tools": "^15.36.0"
   },
   "overrides": {
-    "@grpc/grpc-js": "^1.13.6"
+    "@grpc/grpc-js": "^1.13.6",
+    "uuid": "^11.1.1"
   }
 }
