@@ -1,12 +1,12 @@
 # Ambassador Cre8tive — Vercel deployment
 
-This package supports Vercel static deployment and small same-origin Vercel API routes while Firebase provides Authentication, Firestore, Storage, and Firebase Analytics.
+This package supports Vercel static deployment and small same-origin Vercel API routes while Firebase provides Authentication, Firestore, and Firebase Analytics. Project images use public HTTPS links rather than Firebase Storage uploads.
 
 ## What Vercel serves
 
 Vercel installs production dependencies only, runs `npm run build:vercel`, and deploys the generated `vercel-static/` directory as public pages. The build copies public website files and assets, then generates `firebase-config.js` from environment variables. Vercel also deploys the root `api/` directory as server-side functions for optional Resend enquiry notification, double-opt-in newsletter confirmation, newsletter delivery, and signed unsubscribe handling.
 
-The Python preview server, local JSON data, local uploads, Firebase rules, and environment files are not included in the public Vercel output. The API source is server-side and its private credentials remain Vercel environment variables.
+The Python preview server, local JSON data, Firebase rules, and environment files are not included in the public Vercel output. The API source is server-side and its private credentials remain Vercel environment variables.
 
 ## Configure Vercel environment variables
 
@@ -17,13 +17,13 @@ In **Vercel → Project → Settings → Environment Variables**, add these valu
 | `FIREBASE_API_KEY` | `AIzaSyANr_6DPADypenvccMG3Fl9i1WSl4SqyTs` |
 | `FIREBASE_AUTH_DOMAIN` | `website-f3cc6.firebaseapp.com` |
 | `FIREBASE_PROJECT_ID` | `website-f3cc6` |
-| `FIREBASE_STORAGE_BUCKET` | `website-f3cc6.firebasestorage.app` |
+| `FIREBASE_STORAGE_BUCKET` | `website-f3cc6.firebasestorage.app` — retained Firebase web config; the portfolio does not upload to it |
 | `FIREBASE_MESSAGING_SENDER_ID` | `701579929185` |
 | `FIREBASE_APP_ID` | `1:701579929185:web:3fa00922c71235b1f0ac20` |
 | `FIREBASE_MEASUREMENT_ID` | `G-8DZ648WY2L` |
 | `FIREBASE_ADMIN_EMAIL` | `mobolajiolakunle8@gmail.com` |
 | `BOOKING_URL` | Optional public calendar booking URL |
-| `WHATSAPP_NUMBER` | Optional public WhatsApp number in international digits, e.g. `2349030192034` |
+| `WHATSAPP_NUMBER` | Public business number in international digits, e.g. `2349030192034`; it generates official WhatsApp Click to Chat links |
 | `PUBLIC_SITE_URL` | Final canonical HTTPS website URL |
 | `GOOGLE_BUSINESS_PROFILE_URL` | Optional real Google Business Profile URL |
 | `GOOGLE_SITE_VERIFICATION` | Optional Search Console meta-verification token |
@@ -68,7 +68,7 @@ Before the Vercel website can use the portfolio dashboard, deploy the Firebase r
 
 ```bash
 npx firebase login
-npx firebase deploy --only firestore:rules,storage,database
+npx firebase deploy --only firestore:rules,database
 ```
 
-Then enable Email/Password Authentication, Cloud Firestore, and Cloud Storage in Firebase Console. After Vercel deploys, visit `/admin`, create the approved administrator account, verify the email, and import the starter portfolio.
+Then enable Email/Password Authentication and Cloud Firestore in Firebase Console. Cloud Storage remains optional; if existing published Firebase Storage image links need compatibility support, deploy its included read-only rule separately with `npx firebase deploy --only storage`. The current portfolio uses public HTTPS image links and makes no Storage uploads. After Vercel deploys, visit `/admin`, create the approved administrator account, verify the email, and import the starter portfolio.

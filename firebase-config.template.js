@@ -2,7 +2,6 @@
 import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
-import { getStorage } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js';
 
 export const firebaseConfig = {
   apiKey: __FIREBASE_API_KEY__,
@@ -26,10 +25,9 @@ export const VERCEL_ANALYTICS_ENABLED = __VERCEL_ANALYTICS_ENABLED__;
 export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
 
 // Analytics is optional and loaded separately so privacy tools never block authentication,
-// Firestore, Storage, or the public portfolio.
+// Firestore, or the public portfolio.
 export let analytics = null;
 let logAnalyticsEvent = null;
 if (typeof window !== 'undefined') {
@@ -60,7 +58,7 @@ export const trackEvent = (name, parameters = {}) => {
 };
 
 // App Check is optional until a reCAPTCHA v3 site key is registered in Firebase Console.
-// Once configured, Firebase can enforce App Check for Firestore and Storage requests.
+// Once configured, Firebase can enforce App Check for Firestore requests.
 if (APP_CHECK_SITE_KEY && typeof window !== 'undefined') {
   import('https://www.gstatic.com/firebasejs/12.8.0/firebase-app-check.js')
     .then(({ initializeAppCheck, ReCaptchaV3Provider }) => initializeAppCheck(app, {
