@@ -22,6 +22,16 @@ service cloud.firestore {
       return status in ['new', 'contacted', 'proposal', 'won', 'closed'];
     }
 
+    function validProjectImage(value) {
+      // Project media is either an existing bundled starter image or a public HTTPS link.
+      // Firebase Storage uploads are intentionally not used by this portfolio workflow.
+      return validText(value, 2048)
+        && (
+          value.matches('^assets/([A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+\\.(avif|gif|jpe?g|png|webp|svg)$')
+          || value.matches('^https://[^\\s@]+$')
+        );
+    }
+
     function validProject(projectId) {
       return request.resource.data.keys().hasOnly([
           'id', 'title', 'client', 'category', 'description', 'challenge', 'approach',
@@ -46,8 +56,9 @@ service cloud.firestore {
         && validText(request.resource.data.outcome, 700)
         && validText(request.resource.data.testimonial, 650)
         && validText(request.resource.data.testimonialAttribution, 160)
-        && validText(request.resource.data.image, 2048)
-        && validText(request.resource.data.storagePath, 512)
+        && validProjectImage(request.resource.data.image)
+        // Kept as an empty legacy field so earlier project documents remain schema-compatible.
+        && request.resource.data.storagePath == ''
         && validText(request.resource.data.imageAlt, 180)
         && validText(request.resource.data.date, 20)
         && request.resource.data.featured is bool

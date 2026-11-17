@@ -49,6 +49,15 @@
   const requestedId = query.get('id') || 'orbit-co';
   const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&quot;' })[char]);
   const categoryLabel = (category) => ({ identity: 'Brand identity', campaign: 'Campaign', digital: 'Digital content', print: 'Print' }[category] || 'Creative work');
+  const isStarterAssetImage = (value = '') => /^assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.(?:avif|gif|jpe?g|png|webp|svg)$/i.test(String(value));
+  const safeProjectImageUrl = (value = '') => {
+    const raw = String(value).trim();
+    if (isStarterAssetImage(raw)) return raw;
+    try {
+      const url = new URL(raw);
+      return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url.toString() : '';
+    } catch { return ''; }
+  };
   const dateLabel = (value) => {
     if (!value) return 'Project case study';
     const date = new Date(`${value}T12:00:00`);
@@ -67,6 +76,7 @@
 
   const renderProject = (project) => {
     const title = project.title || 'Project case study';
+    const image = safeProjectImageUrl(project.image) || 'assets/project_01.jpg';
     const description = project.description || 'A focused creative direction designed to make the next brand touchpoint clearer and more memorable.';
     const challenge = project.challenge || 'Create a clearer, more confident way for this brand to communicate its value.';
     const approach = project.approach || 'We brought strategy, visual direction, and practical design thinking together around one focused idea.';
@@ -87,7 +97,7 @@
           <dl class="project-case-meta"><div><dt>Focus</dt><dd>${escapeHtml(project.client || categoryLabel(project.category))}</dd></div><div><dt>Completed</dt><dd>${escapeHtml(dateLabel(project.date))}</dd></div><div><dt>Scope</dt><dd>${deliverables.length} key deliverable${deliverables.length === 1 ? '' : 's'}</dd></div></dl>
         </div>
       </section>
-      <figure class="project-case-feature"><img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.imageAlt || title)}" /></figure>
+      <figure class="project-case-feature"><img src="${escapeHtml(image)}" alt="${escapeHtml(project.imageAlt || title)}" /></figure>
       <section class="project-case-story" aria-labelledby="story-title"><div class="container project-case-story__grid">
         <div class="project-case-story__intro reveal reveal--up"><span class="eyebrow">Project story</span><h2 id="story-title">One clear idea,<br />made <em>useful.</em></h2><p>Every Ambassador Cre8tive project starts with the practical outcome a brand needs—then builds a visual direction that can carry it confidently.</p></div>
         <div class="project-case-story__content reveal reveal--up"><section><span>01</span><h3>The challenge</h3><p>${escapeHtml(challenge)}</p></section><section><span>02</span><h3>Our approach</h3><p>${escapeHtml(approach)}</p></section><section><span>03</span><h3>Designed outcome</h3><p>${escapeHtml(outcome)}</p></section></div>
@@ -101,7 +111,7 @@
     if (schema) {
       schema.textContent = JSON.stringify({
         '@context': 'https://schema.org', '@type': 'CreativeWork', name: title, description,
-        image: new URL(project.image, window.location.href).href,
+        image: new URL(image, window.location.href).href,
         dateCreated: project.date || undefined,
         creator: { '@type': 'Organization', name: 'Ambassador Cre8tive' }
       });

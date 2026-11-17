@@ -19,7 +19,7 @@
       <div class="admin-auth__card" data-login-card>
         <span class="admin-kicker">Firebase administrator login</span>
         <h1>Welcome back.</h1>
-        <p>Sign in with the approved Ambassador Cre8tive administrator account to manage portfolio work, incoming project briefs, newsletter contacts, and image uploads.</p>
+        <p>Sign in with the approved Ambassador Cre8tive administrator account to manage portfolio work, incoming project briefs, newsletter contacts, and public project-image links.</p>
         <form data-login-form>
           <label for="login-password">Password</label>
           <input id="login-password" name="password" type="password" autocomplete="current-password" required />
@@ -59,9 +59,9 @@
       <aside class="admin-sidebar">
         <span class="admin-kicker">Firebase content manager</span>
         <h1>Project<br /><em>workspace.</em></h1>
-        <p>Upload Africa-centred imagery, manage case-study proof, review incoming project briefs, and publish completed projects directly to the public portfolio.</p>
+        <p>Use public project-image links, manage case-study proof, review incoming project briefs, and publish completed projects directly to the public portfolio.</p>
         <dl class="admin-stats"><div><dt data-project-count>0</dt><dd>projects saved</dd></div><div><dt data-published-count>0</dt><dd>currently visible</dd></div><div><dt data-enquiry-count>0</dt><dd>new enquiries</dd></div><div><dt data-subscriber-count>0</dt><dd>newsletter contacts</dd></div></dl>
-        <p class="admin-sidebar__note">Tip: use wide JPG, PNG, or WebP images for the strongest crop. Firebase Storage accepts images up to 10 MB. Add client quotes only when you have permission to publish them.</p>
+        <p class="admin-sidebar__note">Tip: use a stable, public HTTPS JPG, PNG, or WebP image link for the strongest crop. Keep ownership and publishing permission for every image and client quote.</p>
       </aside>
 
       <div class="admin-content">
@@ -71,13 +71,13 @@
           <div class="admin-panel__heading"><div><span class="admin-kicker">Portfolio editor</span><h2 id="project-form-title" data-form-heading>Add a project</h2></div><button class="admin-text-button" type="button" data-cancel-edit hidden>Cancel edit</button></div>
           <form class="project-form" data-project-form>
             <input type="hidden" name="id" data-project-id />
-            <input type="hidden" name="image" data-project-image />
-            <input type="hidden" name="storagePath" data-project-storage-path />
+            <input type="hidden" name="storagePath" data-project-storage-path value="" />
             <div class="admin-form-grid">
               <div class="admin-field"><label for="project-title">Project title *</label><input id="project-title" name="title" maxlength="120" required placeholder="e.g. Orbit & Co." /></div>
               <div class="admin-field"><label for="project-client">Client / project type</label><input id="project-client" name="client" maxlength="120" placeholder="e.g. Brand identity project" /></div>
               <div class="admin-field"><label for="project-category">Category *</label><select id="project-category" name="category" required><option value="identity">Brand identity</option><option value="campaign">Campaign</option><option value="digital">Digital content</option><option value="print">Print</option></select></div>
               <div class="admin-field"><label for="project-date">Project date</label><input id="project-date" name="date" type="date" /></div>
+              <div class="admin-field admin-field--full"><label for="project-image-url">Project image link *</label><input id="project-image-url" name="image" data-project-image maxlength="2048" required inputmode="url" autocomplete="url" placeholder="https://images.example.com/project-cover.jpg" /><small>Paste a public HTTPS image link. Existing <code>assets/…</code> links remain supported for the starter work; files are no longer uploaded to Firebase Storage.</small></div>
               <div class="admin-field admin-field--full"><label for="project-description">Short description</label><textarea id="project-description" name="description" maxlength="650" placeholder="What did Ambassador Cre8tive create for this project?"></textarea></div>
               <div class="admin-field admin-field--full"><label for="project-challenge">The challenge</label><textarea id="project-challenge" name="challenge" maxlength="700" placeholder="What did the client or brand need this work to solve?"></textarea></div>
               <div class="admin-field admin-field--full"><label for="project-approach">Our approach</label><textarea id="project-approach" name="approach" maxlength="700" placeholder="How did Ambassador Cre8tive respond creatively and strategically?"></textarea></div>
@@ -88,12 +88,8 @@
               <div class="admin-field"><label for="project-alt">Image description</label><input id="project-alt" name="imageAlt" maxlength="180" placeholder="Describe the image for screen-reader users" /></div>
             </div>
 
-            <div class="admin-upload" data-dropzone>
-              <input class="admin-upload__input" id="project-upload" data-upload-input type="file" accept="image/jpeg,image/png,image/webp" />
-              <div class="admin-upload__empty" data-upload-empty><span>↑</span><strong>Upload project image</strong><small>Drop a JPG, PNG, or WebP here, or choose a file</small></div>
-              <figure class="admin-upload__preview" data-upload-preview hidden><img data-preview-image src="" alt="Selected project preview" /><button type="button" data-clear-image aria-label="Remove selected image">×</button></figure>
-              <p class="admin-upload__status" data-upload-status aria-live="polite"></p>
-            </div>
+            <figure class="admin-image-link-preview" data-image-link-preview hidden><img data-image-link-preview-image src="" alt="Selected project image preview" /><figcaption><a data-image-link-preview-anchor target="_blank" rel="noopener">Open image link ↗</a></figcaption></figure>
+            <p class="admin-image-link-status" data-image-link-status aria-live="polite"></p>
 
             <div class="admin-checks"><label><input name="featured" type="checkbox" /> Feature this project first</label><label><input name="published" type="checkbox" checked /> Publish on public portfolio</label></div>
             <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-project>Save project <span>↗</span></button><p class="admin-message" data-project-message aria-live="polite"></p></div>

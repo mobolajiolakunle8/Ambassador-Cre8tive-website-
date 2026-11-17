@@ -10,19 +10,20 @@ This site keeps public portfolio content and private lead data in Firebase proje
    - Deploy the rules in this folder before accepting real submissions:
      ```bash
      npm ci
-     npx firebase-tools@13.18.0 deploy --only firestore:rules,storage,database --project website-f3cc6
+     npx firebase-tools@13.18.0 deploy --only firestore:rules,database --project website-f3cc6
      ```
-   - Firestore rules allow only that verified email to read enquiry and newsletter data.
+   - Firestore rules allow only that verified email to read enquiry and newsletter data. If older published Firebase Storage image links must remain available, deploy its read-only compatibility rule separately with `npx firebase-tools@13.18.0 deploy --only storage --project website-f3cc6`.
 
-2. **Firestore and Storage**
-   - Create Firestore in production mode and provision Storage in Firebase Console.
+2. **Firestore and public image links**
+   - Create Firestore in production mode. The portfolio does not upload images to Cloud Storage; its narrow read-only rule is only for older published Firebase Storage image links, if any.
    - The dashboard holds leads in `enquiries`, newsletter consents in `subscribers`, and case studies in `projects`.
+   - For each project image, use a durable public `https://` image URL; the dashboard previews and validates it before saving. Existing starter `assets/...` paths remain valid.
    - The site does not require Realtime Database. Its rules deliberately deny every read and write.
 
 3. **App Check**
    - Register the production domain in Firebase App Check using reCAPTCHA v3 or Enterprise.
    - Put the public site key in `FIREBASE_APP_CHECK_SITE_KEY` in Vercel and deploy.
-   - Test authentication, portfolio reads, forms, and uploads first. Enforce App Check for Firestore and Storage only after those tests pass.
+   - Test authentication, portfolio reads, forms, and public image links first. Enforce App Check for Firestore after those tests pass.
 
 4. **Vercel environment values**
    - Add every value from `.env.production` to Vercel Project Settings → Environment Variables.
@@ -58,7 +59,7 @@ The route fetches the saved Firestore record by ID before emailing it and marks 
 ## Booking and WhatsApp
 
 - Set `BOOKING_URL` to a real calendar booking page to reveal direct booking links.
-- `WHATSAPP_NUMBER` is already formatted as a Nigerian international number. A WhatsApp action appears only while a number is configured.
+- `WHATSAPP_NUMBER` is configured as the Nigerian international business number `2349030192034`. A WhatsApp action appears only while a number is configured and uses WhatsApp’s official `https://api.whatsapp.com/send` Click to Chat destination with URL-encoded prefilled copy.
 - These actions are tracked as conversion events but remain optional visitor choices.
 
 ## Analytics and conversion measurement
@@ -92,7 +93,7 @@ Only add a testimonial to a project when you have the exact client-approved quot
 1. Enable billing if needed for scheduled Firestore export functionality.
 2. Schedule periodic Firestore exports to a private Cloud Storage backup bucket using Firebase/Google Cloud documented export tooling.
 3. Keep at least one tested restore procedure. An export is not a recovery plan until it has been restored in a non-production project.
-4. Export Storage assets or maintain a separate approved original-asset archive.
+4. Maintain a separate approved original-asset archive and record the source/rights status of each externally hosted project image.
 5. Record deployments, rule changes, and administrator changes in an operations log.
 
 ## Multi-admin readiness
@@ -119,7 +120,7 @@ After deploying:
 - submit a real test brief and confirm it appears only in the admin dashboard;
 - verify published projects are public while drafts remain private;
 - verify an anonymous visitor cannot read `/enquiries` or `/subscribers`;
-- test Storage upload as the verified administrator;
+- save and preview a public HTTPS project-image link as the verified administrator;
 - test the Resend notification if enabled;
 - test the canonical URL, sitemap, robots file, Search Console verification, WhatsApp, and booking links;
 - re-check App Check before enforcing it.

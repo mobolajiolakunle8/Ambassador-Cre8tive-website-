@@ -8,6 +8,15 @@
       return ['https:', 'http:'].includes(url.protocol) ? url.toString() : '';
     } catch { return ''; }
   };
+  const isStarterAssetImage = (value = '') => /^assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.(?:avif|gif|jpe?g|png|webp|svg)$/i.test(String(value));
+  const safeProjectImageUrl = (value = '') => {
+    const raw = String(value).trim();
+    if (isStarterAssetImage(raw)) return raw;
+    try {
+      const url = new URL(raw);
+      return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url.toString() : '';
+    } catch { return ''; }
+  };
   const categoryLabel = (category) => ({ identity: 'Brand identity', campaign: 'Campaign', digital: 'Digital content', print: 'Print' }[category] || category);
   const dateLabel = (value) => {
     if (!value) return 'Undated project';
@@ -28,12 +37,10 @@
   const projectId = $('[data-project-id]');
   const projectImage = $('[data-project-image]');
   const projectStoragePath = $('[data-project-storage-path]');
-  const uploadInput = $('[data-upload-input]');
-  const dropzone = $('[data-dropzone]');
-  const preview = $('[data-upload-preview]');
-  const previewImage = $('[data-preview-image]');
-  const uploadEmpty = $('[data-upload-empty]');
-  const uploadStatus = $('[data-upload-status]');
+  const imageLinkPreview = $('[data-image-link-preview]');
+  const imageLinkPreviewImage = $('[data-image-link-preview-image]');
+  const imageLinkPreviewAnchor = $('[data-image-link-preview-anchor]');
+  const imageLinkStatus = $('[data-image-link-status]');
   const formHeading = $('[data-form-heading]');
   const cancelEdit = $('[data-cancel-edit]');
   const saveProject = $('[data-save-project]');
@@ -46,7 +53,6 @@
   let firebase = null;
   let authSdk = null;
   let firestore = null;
-  let storageSdk = null;
   let currentUser = null;
   let projects = [];
   let enquiries = [];
@@ -123,14 +129,14 @@
     updateStats();
     if (seedPanel) seedPanel.hidden = projects.length > 0;
     if (!projects.length) {
-      projectList.innerHTML = '<p class="admin-empty">No Firebase projects are saved yet. Import the starter portfolio or upload your first completed project.</p>';
+      projectList.innerHTML = '<p class="admin-empty">No Firebase projects are saved yet. Import the starter portfolio or add your first completed project.</p>';
       return;
     }
     projectList.innerHTML = [...projects]
       .sort((a, b) => Number(b.featured) - Number(a.featured) || String(b.date || '').localeCompare(String(a.date || '')))
       .map((project) => `
         <article class="admin-project-row" data-row-id="${escapeHtml(project.id)}">
-          <div class="admin-project-row__image"><img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.imageAlt || project.title)}" /></div>
+          <div class="admin-project-row__image"><img src="${escapeHtml(safeProjectImageUrl(project.image) || 'assets/project_01.jpg')}" alt="${escapeHtml(project.imageAlt || project.title)}" /></div>
           <div class="admin-project-row__info">
             <small>${escapeHtml(categoryLabel(project.category))} · ${escapeHtml(dateLabel(project.date))}</small>
             <h3>${escapeHtml(project.title)}</h3>
@@ -319,45 +325,58 @@
     }
   };
 
-  const setPreview = (url = '', alt = '', storagePath = '') => {
-    projectImage.value = url;
-    projectStoragePath.value = storagePath;
-    if (url) {
-      preview.hidden = false;
-      uploadEmpty.hidden = true;
-      previewImage.src = url;
-      previewImage.alt = alt || 'Selected project preview';
-    } else {
-      preview.hidden = true;
-      uploadEmpty.hidden = false;
-      previewImage.removeAttribute('src');
+  const setImagePreview = (value = '', alt = '') => {
+    const url = safeProjectImageUrl(value);
+    if (!url) {
+      imageLinkPreview.hidden = true;
+      delete imageLinkPreviewImage.dataset.previewUrl;
+      imageLinkPreviewImage.onload = null;
+      imageLinkPreviewImage.onerror = null;
+      imageLinkPreviewImage.removeAttribute('src');
+      imageLinkPreviewAnchor.removeAttribute('href');
+      if (String(value).trim()) setMessage(imageLinkStatus, 'Use a public HTTPS image link, or a local assets/… starter-image path.', true);
+      else setMessage(imageLinkStatus);
+      return false;
     }
+    imageLinkPreview.hidden = false;
+    imageLinkPreviewImage.dataset.previewUrl = url;
+    imageLinkPreviewImage.alt = alt || 'Selected project image preview';
+    imageLinkPreviewImage.onload = () => {
+      if (imageLinkPreviewImage.dataset.previewUrl === url) setMessage(imageLinkStatus, 'Image link loaded and is ready to publish.');
+    };
+    imageLinkPreviewImage.onerror = () => {
+      if (imageLinkPreviewImage.dataset.previewUrl === url) setMessage(imageLinkStatus, 'We could not load this image. Verify that the public link is direct and accessible.', true);
+    };
+    imageLinkPreviewImage.src = url;
+    imageLinkPreviewAnchor.href = url;
+    imageLinkPreviewAnchor.textContent = 'Open image link ↗';
+    setMessage(imageLinkStatus, 'Checking image link…');
+    return true;
   };
 
   const resetForm = () => {
     projectForm.reset();
     projectId.value = '';
-    projectForm.dataset.originalStoragePath = '';
+    projectStoragePath.value = '';
     projectForm.elements.published.checked = true;
     projectForm.elements.featured.checked = false;
-    setPreview();
-    uploadInput.value = '';
+    setImagePreview();
     formHeading.textContent = 'Add a project';
     saveProject.innerHTML = 'Save project <span>↗</span>';
     cancelEdit.hidden = true;
     setMessage($('[data-project-message]'));
-    setMessage(uploadStatus);
   };
 
   const beginEdit = (id) => {
     const project = projects.find((item) => item.id === id);
     if (!project) return;
     projectId.value = project.id;
-    projectForm.dataset.originalStoragePath = project.storagePath || '';
+    projectStoragePath.value = '';
     projectForm.elements.title.value = project.title || '';
     projectForm.elements.client.value = project.client || '';
     projectForm.elements.category.value = project.category || 'identity';
     projectForm.elements.date.value = project.date || '';
+    projectForm.elements.image.value = project.image || '';
     projectForm.elements.description.value = project.description || '';
     projectForm.elements.challenge.value = project.challenge || '';
     projectForm.elements.approach.value = project.approach || '';
@@ -368,67 +387,11 @@
     projectForm.elements.imageAlt.value = project.imageAlt || '';
     projectForm.elements.featured.checked = Boolean(project.featured);
     projectForm.elements.published.checked = Boolean(project.published);
-    setPreview(project.image || '', project.imageAlt || project.title, project.storagePath || '');
+    setImagePreview(project.image || '', project.imageAlt || project.title);
     formHeading.textContent = 'Edit project';
     saveProject.innerHTML = 'Save changes <span>↗</span>';
     cancelEdit.hidden = false;
     projectForm.closest('.admin-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  const fileIsAccepted = (file) => {
-    const mimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    return mimeTypes.includes(file.type) || /\.(jpe?g|png|webp)$/i.test(file.name || '');
-  };
-  const mimeFor = (file) => {
-    if (file.type) return file.type;
-    if (/\.png$/i.test(file.name)) return 'image/png';
-    if (/\.webp$/i.test(file.name)) return 'image/webp';
-    return 'image/jpeg';
-  };
-  const storageFilename = (file) => {
-    const safe = String(file.name || 'project-image').toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
-    const nonce = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2, 10);
-    return `${Date.now()}-${nonce}-${safe}`;
-  };
-  const removeStorageObject = async (path) => {
-    if (!path || !firebase || !storageSdk) return;
-    try { await storageSdk.deleteObject(storageSdk.ref(firebase.storage, path)); }
-    catch { /* A stale image should not prevent an otherwise valid project update. */ }
-  };
-
-  const uploadFile = async (file) => {
-    if (!file) return;
-    if (!fileIsAccepted(file)) {
-      setMessage(uploadStatus, 'Please choose a JPG, PNG, or WebP image.', true);
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setMessage(uploadStatus, 'This image is larger than 10 MB.', true);
-      return;
-    }
-    if (!currentUser || !firebase?.isApprovedAdmin(currentUser)) {
-      setMessage(uploadStatus, 'Verify the approved Firebase administrator email before uploading.', true);
-      return;
-    }
-    const previousCandidate = projectStoragePath.value;
-    const originalPath = projectForm.dataset.originalStoragePath || '';
-    if (previousCandidate && previousCandidate !== originalPath) await removeStorageObject(previousCandidate);
-    setMessage(uploadStatus, 'Uploading to Firebase Storage…');
-    dropzone.classList.add('is-uploading');
-    try {
-      const path = `projects/${currentUser.uid}/${storageFilename(file)}`;
-      const objectRef = storageSdk.ref(firebase.storage, path);
-      await storageSdk.uploadBytes(objectRef, file, { contentType: mimeFor(file) });
-      const url = await storageSdk.getDownloadURL(objectRef);
-      setPreview(url, file.name, path);
-      setMessage(uploadStatus, 'Image uploaded and ready to publish.');
-      const altField = projectForm.elements.imageAlt;
-      if (!altField.value) altField.value = file.name.replace(/[-_]+/g, ' ').replace(/\.[^/.]+$/, '');
-    } catch (error) {
-      setMessage(uploadStatus, authErrorMessage(error), true);
-    } finally {
-      dropzone.classList.remove('is-uploading');
-    }
   };
 
   const projectPayload = () => {
@@ -446,8 +409,10 @@
       testimonial: String(data.get('testimonial') || '').trim(),
       testimonialAttribution: String(data.get('testimonialAttribution') || '').trim(),
       imageAlt: String(data.get('imageAlt') || '').trim(),
-      image: String(data.get('image') || '').trim(),
-      storagePath: String(data.get('storagePath') || '').trim(),
+      image: safeProjectImageUrl(data.get('image')),
+      // Retained as an empty legacy field so existing project documents remain compatible
+      // with the deployed Firestore schema while new work uses image links exclusively.
+      storagePath: '',
       featured: data.get('featured') === 'on',
       published: data.get('published') === 'on',
     };
@@ -461,11 +426,10 @@
     const message = $('[data-project-message]');
     const payload = projectPayload();
     if (!payload.image) {
-      setMessage(message, 'Upload or select a project image before saving.', true);
+      setMessage(message, 'Paste a public HTTPS image link or a valid assets/… starter-image path before saving.', true);
       return;
     }
     const existingId = projectId.value;
-    const originalPath = projectForm.dataset.originalStoragePath || '';
     saveProject.disabled = true;
     setMessage(message, existingId ? 'Saving changes to Firestore…' : 'Saving project to Firestore…');
     try {
@@ -476,7 +440,6 @@
         const reference = firestore.doc(firestore.collection(firebase.db, 'projects'));
         await firestore.setDoc(reference, { ...payload, id: reference.id, createdAt: firestore.serverTimestamp(), updatedAt: firestore.serverTimestamp() });
       }
-      if (originalPath && originalPath !== payload.storagePath) await removeStorageObject(originalPath);
       resetForm();
       setMessage(message, existingId ? 'Project updated successfully.' : 'Project saved successfully.');
     } catch (error) {
@@ -492,7 +455,6 @@
     button.disabled = true;
     try {
       await firestore.deleteDoc(firestore.doc(firebase.db, 'projects', id));
-      if (project.storagePath) await removeStorageObject(project.storagePath);
       if (projectId.value === id) resetForm();
     } catch (error) {
       window.alert(authErrorMessage(error));
@@ -635,24 +597,8 @@
     logoutButton?.addEventListener('click', signOut);
     $('[data-verify-sign-out]')?.addEventListener('click', signOut);
 
-    uploadInput?.addEventListener('change', () => uploadFile(uploadInput.files?.[0]));
-    ['dragenter', 'dragover'].forEach((eventName) => dropzone?.addEventListener(eventName, (event) => {
-      event.preventDefault();
-      dropzone.classList.add('is-dragging');
-    }));
-    ['dragleave', 'drop'].forEach((eventName) => dropzone?.addEventListener(eventName, (event) => {
-      event.preventDefault();
-      dropzone.classList.remove('is-dragging');
-    }));
-    dropzone?.addEventListener('drop', (event) => uploadFile(event.dataTransfer?.files?.[0]));
-    $('[data-clear-image]')?.addEventListener('click', async () => {
-      const candidate = projectStoragePath.value;
-      const originalPath = projectForm.dataset.originalStoragePath || '';
-      setPreview();
-      uploadInput.value = '';
-      setMessage(uploadStatus);
-      if (candidate && candidate !== originalPath) await removeStorageObject(candidate);
-    });
+    projectImage?.addEventListener('input', () => setImagePreview(projectImage.value, projectForm.elements.imageAlt.value));
+    projectForm?.elements.imageAlt?.addEventListener('input', () => setImagePreview(projectImage.value, projectForm.elements.imageAlt.value));
 
     projectForm?.addEventListener('submit', (event) => { event.preventDefault(); saveCurrentProject(); });
     newsletterCampaignForm?.addEventListener('submit', (event) => { event.preventDefault(); sendNewsletterCampaign(); });
@@ -684,16 +630,14 @@
 
   (async () => {
     try {
-      const [config, authModule, firestoreModule, storageModule] = await Promise.all([
+      const [config, authModule, firestoreModule] = await Promise.all([
         import('./firebase-config.js'),
         import('https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js'),
         import('https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js'),
-        import('https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js'),
       ]);
       firebase = config;
       authSdk = authModule;
       firestore = firestoreModule;
-      storageSdk = storageModule;
       bindEvents();
       authSdk.onAuthStateChanged(firebase.auth, handleAuthenticatedUser);
     } catch (error) {

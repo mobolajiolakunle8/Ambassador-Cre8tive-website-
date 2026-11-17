@@ -9,6 +9,14 @@
   "database": {
     "rules": "database.rules.json"
   },
+  "emulators": {
+    "auth": { "port": 9099 },
+    "firestore": { "port": 8080 },
+    "storage": { "port": 9199 },
+    "hosting": { "port": 5000 },
+    "ui": { "enabled": true, "port": 4000 },
+    "singleProjectMode": true
+  },
   "hosting": {
     "public": ".",
     "cleanUrls": true,
@@ -22,7 +30,6 @@
       "database.rules.json",
       "server.py",
       "data/**",
-      "uploads/**",
       "node_modules/**",
       "**/node_modules/**",
       ".git/**",

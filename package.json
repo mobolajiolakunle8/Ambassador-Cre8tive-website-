@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Ambassador Cre8tive Firebase Hosting, Firestore, Storage, and Authentication setup.",
+  "description": "Ambassador Cre8tive Firebase Hosting, Firestore, and Authentication setup with linked portfolio images.",
   "scripts": {
     "build:vercel": "node scripts/build-vercel.mjs",
     "vercel-build": "npm run build:vercel",
     "firebase:login": "firebase login",
     "emulators": "firebase emulators:start --only auth,firestore,storage,hosting",
-    "deploy": "firebase deploy --only hosting,firestore:rules,storage,database",
+    "deploy": "firebase deploy --only hosting,firestore:rules,database",
     "deploy:hosting": "firebase deploy --only hosting",
-    "deploy:rules": "firebase deploy --only firestore:rules,storage,database"
+    "deploy:rules": "firebase deploy --only firestore:rules,database",
+    "deploy:storage-rules": "firebase deploy --only storage"
   },
   "dependencies": {
     "firebase-admin": "^13.10.0"

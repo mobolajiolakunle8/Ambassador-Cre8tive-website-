@@ -1,6 +1,7 @@
 (() => {
   const normalizeWhatsapp = (number = '') => String(number).replace(/\D/g, '');
-  const makeWhatsappUrl = (number, text) => `https://wa.me/${normalizeWhatsapp(number)}?text=${encodeURIComponent(text)}`;
+  // Use WhatsApp's official click-to-chat endpoint rather than a third-party redirect.
+  const makeWhatsappUrl = (number, text) => `https://api.whatsapp.com/send?phone=${normalizeWhatsapp(number)}&text=${encodeURIComponent(text)}`;
   const isHttpUrl = (value) => {
     try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch { return false; }
   };

@@ -8,7 +8,7 @@ This package is the production-ready Ambassador Cre8tive website with Firebase s
 - Firebase portfolio dashboard at `/admin`
 - Firebase Authentication integration for `mobolajiolakunle8@gmail.com`
 - Cloud Firestore project and case-study integration, private enquiry CRM, and newsletter-consent records
-- Firebase Storage image-upload integration
+- Public HTTPS project-image link integration (with local starter-image support)
 - Firestore, Storage, and Realtime Database security rules
 - Firebase Hosting configuration, `.firebaserc`, `package.json`, and lockfile
 
@@ -18,8 +18,8 @@ In Firebase Console for project `website-f3cc6`, enable:
 
 1. **Authentication → Email/Password**
 2. **Cloud Firestore**
-3. **Cloud Storage**
-4. **Realtime Database** only if you want to deploy its included locked rule
+3. **Realtime Database** only if you want to deploy its included locked rule
+4. **Cloud Storage** only if existing published Firebase Storage image links need compatibility support or a separately reviewed future feature needs it; the current portfolio uses public HTTPS image links
 
 ## Deploy
 
@@ -28,14 +28,16 @@ Open a terminal inside this folder and run:
 ```bash
 npm install
 npx firebase login
-npx firebase deploy --only hosting,firestore:rules,storage,database
+npx firebase deploy --only hosting,firestore:rules,database
 ```
 
 If you have not created Realtime Database, use:
 
 ```bash
-npx firebase deploy --only hosting,firestore:rules,storage
+npx firebase deploy --only hosting,firestore:rules
 ```
+
+If existing Firebase Storage project-image links need to stay public, deploy the included read-only compatibility rule separately with `npx firebase deploy --only storage`. Do not reopen it for portfolio uploads: new project images are public HTTPS links.
 
 ## First administrator setup
 
@@ -48,7 +50,7 @@ npx firebase deploy --only hosting,firestore:rules,storage
 ## Security notes
 
 - Public visitors can only read Firestore projects marked `published: true`.
-- Only the verified `mobolajiolakunle8@gmail.com` Firebase account can manage drafts, uploads, projects, private briefs, and newsletter contacts.
-- Realtime Database is locked by default because the site uses Firestore real-time updates instead.
-- The local Python preview server, local JSON data, local uploads, Vercel API source, and environment files are intentionally excluded from Firebase Hosting output.
+- Only the verified `mobolajiolakunle8@gmail.com` Firebase account can manage drafts, public project-image links, projects, private briefs, and newsletter contacts.
+- Realtime Database is locked by default. Cloud Storage denies writes and permits only the former public project-object path for compatibility with older image links; new portfolio images are externally linked.
+- The local Python preview server, local JSON data, Vercel API source, and environment files are intentionally excluded from Firebase Hosting output.
 - Firebase Hosting retains Firestore lead capture and the dashboard. Use the Vercel package for Resend notifications, signed newsletter delivery/unsubscribe routes, and Vercel Web Analytics.

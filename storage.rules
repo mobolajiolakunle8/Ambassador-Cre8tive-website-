@@ -1,24 +1,13 @@
 rules_version = '2';
 
+// Portfolio editing now saves public HTTPS image links in Firestore rather than uploading
+// media to Cloud Storage. Preserve read-only access to the previous project-object path so
+// any already-published Firebase Storage image links remain visible while no new uploads occur.
 service firebase.storage {
   match /b/{bucket}/o {
-    function isAdmin() {
-      return request.auth != null
-        && request.auth.token.email == 'mobolajiolakunle8@gmail.com'
-        && request.auth.token.email_verified == true;
-    }
-
-    function validProjectImage() {
-      return request.resource.size < 10 * 1024 * 1024
-        && request.resource.contentType.matches('image/(jpeg|png|webp)');
-    }
-
-    // Publicly readable so published portfolio images can render for every visitor.
-    // Writes stay limited to the verified administrator's own storage path.
     match /projects/{userId}/{fileName} {
       allow read: if true;
-      allow create, update: if isAdmin() && request.auth.uid == userId && validProjectImage();
-      allow delete: if isAdmin() && request.auth.uid == userId;
+      allow write: if false;
     }
 
     match /{allPaths=**} {

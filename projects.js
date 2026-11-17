@@ -12,8 +12,18 @@
     digital: 'Digital content',
     print: 'Print',
   }[category] || 'Creative work');
+  const isStarterAssetImage = (value = '') => /^assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.(?:avif|gif|jpe?g|png|webp|svg)$/i.test(String(value));
+  const safeProjectImageUrl = (value = '') => {
+    const raw = String(value).trim();
+    if (isStarterAssetImage(raw)) return raw;
+    try {
+      const url = new URL(raw);
+      return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url.toString() : '';
+    } catch { return ''; }
+  };
+  const imageSource = (project) => safeProjectImageUrl(project.image) || 'assets/project_01.jpg';
   const publishedProjects = (projects) => projects
-    .filter((project) => project && project.published !== false && project.image && project.title && project.id)
+    .filter((project) => project && project.published !== false && safeProjectImageUrl(project.image) && project.title && project.id)
     .sort((a, b) => Number(b.featured) - Number(a.featured) || String(b.date || '').localeCompare(String(a.date || '')));
   const projectHref = (project) => `project.html?id=${encodeURIComponent(project.id)}`;
   const projectLabel = (project) => [categoryLabel(project.category), project.client].filter(Boolean).join(' · ');
@@ -23,7 +33,7 @@
     gallery.innerHTML = projects.map((project) => `
       <article class="portfolio-item reveal is-visible" data-filter-item="${escapeHtml(project.category)}">
         <a class="portfolio-card" href="${projectHref(project)}">
-          <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.imageAlt || project.title)}" loading="lazy" decoding="async" />
+          <img src="${escapeHtml(imageSource(project))}" alt="${escapeHtml(project.imageAlt || project.title)}" loading="lazy" decoding="async" />
           <span class="portfolio-card__caption"><span><small>${escapeHtml(projectLabel(project))}</small><strong>${escapeHtml(project.title)}</strong></span><i aria-hidden="true">↗</i></span>
         </a>
       </article>
@@ -36,7 +46,7 @@
     const cards = [...selected, ...projects.filter((project) => !project.featured)].slice(0, 3);
     featuredRoot.innerHTML = cards.map((project, index) => `
       <a class="project-card ${index === 0 ? 'project-card--large' : ''} reveal is-visible" href="${projectHref(project)}">
-        <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.imageAlt || project.title)}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"'} />
+        <img src="${escapeHtml(imageSource(project))}" alt="${escapeHtml(project.imageAlt || project.title)}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"'} />
         <span class="project-card__meta"><small>${escapeHtml(categoryLabel(project.category))}</small><strong>${escapeHtml(project.title)}</strong><i aria-hidden="true">↗</i></span>
       </a>
     `).join('');
