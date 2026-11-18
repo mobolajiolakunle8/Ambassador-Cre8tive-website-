@@ -126,6 +126,78 @@
     });
   });
 
+  // A short, brand-led welcome appears on every public page load. It is intentionally not
+  // persisted in local storage, so visitors see it again after navigating or refreshing.
+  const showWelcomeNote = () => {
+    if (body.dataset.disableWelcome === 'true' || document.querySelector('[data-welcome-note]')) return;
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const note = document.createElement('section');
+    note.className = 'welcome-note';
+    note.dataset.welcomeNote = '';
+    note.setAttribute('role', 'dialog');
+    note.setAttribute('aria-modal', 'true');
+    note.setAttribute('aria-labelledby', 'welcome-note-title');
+    note.setAttribute('aria-describedby', 'welcome-note-copy');
+    note.innerHTML = `
+      <div class="welcome-note__card">
+        <span class="welcome-note__spark welcome-note__spark--one" aria-hidden="true"></span>
+        <span class="welcome-note__spark welcome-note__spark--two" aria-hidden="true"></span>
+        <button class="welcome-note__close" type="button" data-welcome-close aria-label="Continue to the Ambassador Cre8tive website"><span aria-hidden="true">×</span></button>
+        <p class="welcome-note__eyebrow">Ambassador Cre8tive</p>
+        <h2 id="welcome-note-title">Welcome to the <em>studio.</em></h2>
+        <p id="welcome-note-copy">Fresh perspective, purposeful design, and a clearer way for your next idea to show up.</p>
+        <div class="welcome-note__actions"><a class="welcome-note__primary" href="portfolio.html">Explore selected work <span aria-hidden="true">↗</span></a><a class="welcome-note__secondary" href="contact.html?topic=Discovery%20call">Start a project <span aria-hidden="true">↗</span></a></div>
+        <p class="welcome-note__foot">Ibadan, Nigeria · Working with ambitious ideas everywhere</p>
+      </div>
+    `;
+
+    let isClosing = false;
+    const closeWelcomeNote = () => {
+      if (isClosing) return;
+      isClosing = true;
+      note.classList.remove('is-visible');
+      body.classList.remove('welcome-is-open');
+      document.removeEventListener('keydown', handleKeydown);
+      window.setTimeout(() => {
+        note.remove();
+        if (previouslyFocused && previouslyFocused !== document.body && document.contains(previouslyFocused)) previouslyFocused.focus({ preventScroll: true });
+      }, 240);
+    };
+    const focusables = () => [...note.querySelectorAll('button:not([disabled]), a[href]')];
+    const handleKeydown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeWelcomeNote();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    note.addEventListener('click', (event) => {
+      if (event.target === note || event.target.closest('[data-welcome-close]')) closeWelcomeNote();
+    });
+    note.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeWelcomeNote));
+    document.addEventListener('keydown', handleKeydown);
+    document.body.append(note);
+    window.requestAnimationFrame(() => {
+      body.classList.add('welcome-is-open');
+      note.classList.add('is-visible');
+      note.querySelector('[data-welcome-close]')?.focus({ preventScroll: true });
+    });
+  };
+  window.setTimeout(showWelcomeNote, 140);
+
   // Firebase lead capture, notification, and mailto fallback are handled by contact.js on the contact page.
 
   // Render useful, local results on the search page.

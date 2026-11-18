@@ -911,3 +911,41 @@ body.menu-is-open .menu-scrim { pointer-events: auto; opacity: 1; }
   .project-testimonial blockquote { font-size: 36px; }
   .project-case-next .text-link { display: inline-flex; margin: 23px 0 0; }
 }
+
+/* Every-load welcome note */
+body.welcome-is-open { overflow: hidden; }
+.welcome-note { position: fixed; z-index: 10000; inset: 0; display: grid; padding: 22px; place-items: center; visibility: hidden; opacity: 0; pointer-events: none; background: rgba(7, 13, 17, .76); backdrop-filter: blur(10px); transition: opacity .28s ease, visibility .28s ease; }
+.welcome-note.is-visible { visibility: visible; opacity: 1; pointer-events: auto; }
+.welcome-note__card { position: relative; width: min(100%, 650px); overflow: hidden; padding: clamp(34px, 6vw, 66px); color: var(--paper); background: var(--ink); box-shadow: 0 28px 80px rgba(0,0,0,.42); transform: translateY(22px) scale(.975); transition: transform .42s var(--ease); }
+.welcome-note.is-visible .welcome-note__card { transform: translateY(0) scale(1); }
+.welcome-note__card::before { position: absolute; z-index: 0; top: -88px; right: -70px; width: 250px; height: 250px; content: ""; border: 1px solid rgba(201,243,29,.52); border-radius: 50%; box-shadow: 0 0 0 31px rgba(201,243,29,.08), 0 0 0 62px rgba(201,243,29,.04); }
+.welcome-note__card > * { position: relative; z-index: 1; }
+.welcome-note__spark { position: absolute; z-index: 0; display: block; background: var(--lime); }
+.welcome-note__spark--one { bottom: -34px; left: 6%; width: 115px; height: 115px; transform: rotate(45deg); }
+.welcome-note__spark--two { right: 26%; bottom: 13%; width: 11px; height: 11px; border-radius: 50%; box-shadow: 24px 31px 0 var(--lime), 49px -9px 0 var(--lime); }
+.welcome-note__close { position: absolute !important; top: 16px; right: 17px; display: grid; width: 42px; height: 42px; padding: 0; cursor: pointer; place-items: center; color: var(--ink); border: 0; border-radius: 50%; background: var(--lime); font-size: 29px; font-weight: 300; line-height: 1; transition: transform .25s var(--ease), background .25s ease; }
+.welcome-note__close:hover { background: var(--paper); transform: rotate(90deg) scale(1.05); }
+.welcome-note__close:focus-visible, .welcome-note a:focus-visible { outline: 3px solid var(--lime); outline-offset: 4px; }
+.welcome-note__eyebrow { margin: 0 0 18px; color: var(--lime); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.welcome-note h2 { max-width: 540px; margin: 0; font-size: clamp(49px, 7vw, 85px); font-weight: 500; line-height: .9; letter-spacing: -.075em; }
+.welcome-note h2 em { display: inline-block; padding: 0 .13em .065em; color: var(--ink); background: var(--lime); border-radius: 100vmax; font-style: normal; }
+.welcome-note h2 + p { max-width: 450px; margin: 25px 0 0; color: #bdc7c6; font-size: clamp(16px, 2vw, 20px); line-height: 1.55; letter-spacing: -.025em; }
+.welcome-note__actions { display: flex; flex-wrap: wrap; gap: 15px 24px; align-items: center; margin-top: 35px; }
+.welcome-note__primary, .welcome-note__secondary { display: inline-flex; gap: 14px; align-items: center; font-size: 14px; font-weight: 700; transition: gap .25s var(--ease), transform .25s var(--ease), color .25s ease, background .25s ease; }
+.welcome-note__primary { padding: 14px 19px; color: var(--ink); background: var(--lime); }
+.welcome-note__primary:hover { gap: 20px; color: var(--paper); background: #3b4b20; transform: translateY(-2px); }
+.welcome-note__secondary { padding: 10px 0 5px; color: var(--paper); border-bottom: 1px solid rgba(255,255,255,.72); }
+.welcome-note__secondary:hover { gap: 20px; color: var(--lime); }
+.welcome-note__foot { margin: 49px 0 0; color: #9fa9aa; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+
+@media (max-width: 560px) {
+  .welcome-note { padding: 14px; }
+  .welcome-note__card { min-height: min(610px, calc(100vh - 28px)); padding: 64px 29px 37px; display: flex; flex-direction: column; justify-content: center; }
+  .welcome-note__card::before { top: -70px; right: -100px; width: 210px; height: 210px; }
+  .welcome-note h2 { max-width: 360px; font-size: clamp(49px, 15vw, 70px); }
+  .welcome-note__actions { align-items: flex-start; flex-direction: column; margin-top: 30px; }
+  .welcome-note__foot { margin-top: 37px; font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-note, .welcome-note__card, .welcome-note__close, .welcome-note__primary, .welcome-note__secondary { transition: none; }
+}
