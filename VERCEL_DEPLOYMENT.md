@@ -24,6 +24,7 @@ In **Vercel → Project → Settings → Environment Variables**, add these valu
 | `FIREBASE_ADMIN_EMAIL` | `mobolajiolakunle8@gmail.com` |
 | `BOOKING_URL` | Optional public calendar booking URL |
 | `WHATSAPP_NUMBER` | Public business number in international digits, e.g. `2349030192034`; it generates official WhatsApp Click to Chat links |
+| `BETHEL_APP_URL` | Optional public HTTPS Bethel web/universal-link destination; it activates only deliberate `[data-bethel-app-link]` CTAs |
 | `PUBLIC_SITE_URL` | Final canonical HTTPS website URL |
 | `GOOGLE_BUSINESS_PROFILE_URL` | Optional real Google Business Profile URL |
 | `GOOGLE_SITE_VERIFICATION` | Optional Search Console meta-verification token |

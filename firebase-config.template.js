@@ -16,6 +16,8 @@ export const firebaseConfig = {
 export const ADMIN_EMAIL = __FIREBASE_ADMIN_EMAIL__;
 export const BOOKING_URL = __BOOKING_URL__;
 export const WHATSAPP_NUMBER = __WHATSAPP_NUMBER__;
+// Optional public Bethel web/universal-link destination. Keep blank until its documented URL is known.
+export const BETHEL_APP_URL = __BETHEL_APP_URL__;
 export const PUBLIC_SITE_URL = __PUBLIC_SITE_URL__;
 export const GOOGLE_BUSINESS_PROFILE_URL = __GOOGLE_BUSINESS_PROFILE_URL__;
 export const GOOGLE_SITE_VERIFICATION = __GOOGLE_SITE_VERIFICATION__;
