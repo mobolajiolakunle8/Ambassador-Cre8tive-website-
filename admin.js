@@ -49,6 +49,10 @@
   const enquiryList = $('[data-enquiry-list]');
   const subscriberList = $('[data-subscriber-list]');
   const newsletterCampaignForm = $('[data-newsletter-campaign-form]');
+  const siteSettingsForm = $('[data-site-settings-form]');
+  const dashboardViews = [...document.querySelectorAll('[data-dashboard-view]')];
+  const dashboardNavigation = [...document.querySelectorAll('[data-dashboard-nav]')];
+  const dashboardJumpButtons = [...document.querySelectorAll('[data-dashboard-jump]')];
 
   let firebase = null;
   let authSdk = null;
@@ -60,6 +64,25 @@
   let unsubscribeProjects = null;
   let unsubscribeEnquiries = null;
   let unsubscribeSubscribers = null;
+  let activeDashboardView = 'overview';
+  let siteSettings = null;
+
+  const DEFAULT_SITE_SETTINGS = Object.freeze({
+    heroLineOne: 'Creating',
+    heroHighlightOne: 'brands',
+    heroLineTwo: 'and digital',
+    heroHighlightTwo: 'solutions',
+    heroIntro: 'Brand identity and strategic design for ambitious businesses, founders, and growing teams ready to show up clearly.',
+    heroCtaLabel: 'Start a project',
+    heroCtaHref: 'contact.html?topic=Discovery%20call',
+    aboutCopy: 'At Ambassador Cre8tive, we combine creativity, strategy, and design to help businesses establish their identity, strengthen their presence, and communicate with confidence.',
+    footerKicker: 'Have a project?',
+    footerLineOne: 'Let’s make',
+    footerLineTwo: 'something',
+    footerHighlight: 'matter.',
+    contactEmail: 'mobolajiolakunle8@gmail.com',
+    contactPhone: '0903 019 2034',
+  });
 
   const starterProjects = [
     {
@@ -118,11 +141,145 @@
     return date.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
   };
   const enquiryStatusLabel = (status) => ({ new: 'New', contacted: 'Contacted', proposal: 'Proposal', won: 'Won', closed: 'Closed' }[status] || 'New');
+  const setCount = (selector, value) => document.querySelectorAll(selector).forEach((element) => { element.textContent = value; });
+  const renderDashboardOverview = () => {
+    setCount('[data-overview-published]', projects.filter((project) => project.published).length);
+    setCount('[data-overview-enquiries]', enquiries.filter((enquiry) => enquiry.status === 'new').length);
+    setCount('[data-overview-subscribers]', subscribers.length);
+
+    const enquiryRoot = $('[data-dashboard-recent-enquiries]');
+    if (enquiryRoot) {
+      const recent = [...enquiries].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 3);
+      enquiryRoot.innerHTML = recent.length
+        ? recent.map((enquiry) => `<article class="admin-overview-item"><div><small>${escapeHtml(timestampLabel(enquiry.createdAt))}</small><strong>${escapeHtml(enquiry.name || 'Unnamed enquiry')}</strong><span>${escapeHtml(enquiry.service || enquiry.business || 'General project brief')}</span></div><b class="status-${escapeHtml(enquiry.status || 'new')}">${escapeHtml(enquiryStatusLabel(enquiry.status))}</b></article>`).join('')
+        : '<p class="admin-empty">No project briefs have arrived yet.</p>';
+    }
+
+    const projectRoot = $('[data-dashboard-recent-projects]');
+    if (projectRoot) {
+      const recent = [...projects].sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).slice(0, 3);
+      projectRoot.innerHTML = recent.length
+        ? recent.map((project) => `<article class="admin-overview-item"><div><small>${escapeHtml(categoryLabel(project.category))} · ${escapeHtml(dateLabel(project.date))}</small><strong>${escapeHtml(project.title || 'Untitled project')}</strong><span>${project.published ? 'Published to the portfolio' : 'Saved as a private draft'}</span></div><b class="${project.published ? 'is-live' : 'is-draft'}">${project.published ? 'Live' : 'Draft'}</b></article>`).join('')
+        : '<p class="admin-empty">Add a first project to begin building the public portfolio.</p>';
+    }
+  };
+
   const updateStats = () => {
-    $('[data-project-count]').textContent = projects.length;
-    $('[data-published-count]').textContent = projects.filter((project) => project.published).length;
-    $('[data-enquiry-count]').textContent = enquiries.filter((enquiry) => enquiry.status === 'new').length;
-    $('[data-subscriber-count]').textContent = subscribers.length;
+    setCount('[data-project-count]', projects.length);
+    setCount('[data-published-count]', projects.filter((project) => project.published).length);
+    setCount('[data-enquiry-count]', enquiries.filter((enquiry) => enquiry.status === 'new').length);
+    setCount('[data-subscriber-count]', subscribers.length);
+    renderDashboardOverview();
+  };
+
+  const setDashboardView = (requestedView, shouldFocus = false) => {
+    const next = dashboardViews.find((view) => view.dataset.dashboardView === requestedView);
+    if (!next) return;
+    activeDashboardView = requestedView;
+    dashboardViews.forEach((view) => { view.hidden = view !== next; });
+    dashboardNavigation.forEach((button) => {
+      const active = button.dataset.dashboardNav === requestedView;
+      button.classList.toggle('is-active', active);
+      if (active) button.setAttribute('aria-current', 'page');
+      else button.removeAttribute('aria-current');
+    });
+    if (shouldFocus) {
+      const heading = next.querySelector('h2, h3');
+      heading?.focus?.({ preventScroll: true });
+      next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const safeContentHref = (value = '') => {
+    const raw = String(value).trim();
+    if (/^(?:[a-z0-9_-]+\.html(?:\?[^\s]*)?|\/[a-z0-9_/?#=&.-]*)$/i.test(raw)) return raw;
+    try {
+      const url = new URL(raw);
+      return url.protocol === 'https:' ? url.toString() : '';
+    } catch { return ''; }
+  };
+
+  const normaliseSiteSettings = (source = {}) => Object.fromEntries(
+    Object.entries(DEFAULT_SITE_SETTINGS).map(([key, fallback]) => [key, String(source[key] ?? fallback).trim().slice(0, key === 'heroIntro' ? 380 : (key === 'aboutCopy' ? 650 : (key === 'heroCtaHref' ? 500 : (key === 'contactEmail' ? 254 : (key === 'contactPhone' ? 40 : 80)))))]),
+  );
+
+  const renderSiteSettings = (source = DEFAULT_SITE_SETTINGS) => {
+    if (!siteSettingsForm) return;
+    const values = normaliseSiteSettings(source);
+    Object.entries(values).forEach(([key, value]) => {
+      const field = siteSettingsForm.elements[key];
+      if (field) field.value = value;
+    });
+  };
+
+  const loadSiteSettings = async () => {
+    if (!siteSettingsForm || !firebase || !firestore) return;
+    const message = $('[data-site-settings-message]');
+    setMessage(message, 'Loading homepage content…');
+    try {
+      const reference = firestore.doc(firebase.db, 'siteSettings', 'public');
+      const snapshot = await firestore.getDoc(reference);
+      siteSettings = normaliseSiteSettings(snapshot.exists() ? snapshot.data() : DEFAULT_SITE_SETTINGS);
+      renderSiteSettings(siteSettings);
+      setMessage(message, snapshot.exists() ? 'Homepage content is ready to edit.' : 'Using the current website copy as your starting point. Save to activate live editing.');
+    } catch (error) {
+      renderSiteSettings(DEFAULT_SITE_SETTINGS);
+      setMessage(message, authErrorMessage(error), true);
+    }
+  };
+
+  const siteSettingsPayload = () => {
+    const data = new FormData(siteSettingsForm);
+    return normaliseSiteSettings({
+      heroLineOne: data.get('heroLineOne'),
+      heroHighlightOne: data.get('heroHighlightOne'),
+      heroLineTwo: data.get('heroLineTwo'),
+      heroHighlightTwo: data.get('heroHighlightTwo'),
+      heroIntro: data.get('heroIntro'),
+      heroCtaLabel: data.get('heroCtaLabel'),
+      heroCtaHref: safeContentHref(data.get('heroCtaHref')),
+      aboutCopy: data.get('aboutCopy'),
+      footerKicker: data.get('footerKicker'),
+      footerLineOne: data.get('footerLineOne'),
+      footerLineTwo: data.get('footerLineTwo'),
+      footerHighlight: data.get('footerHighlight'),
+      contactEmail: data.get('contactEmail'),
+      contactPhone: data.get('contactPhone'),
+    });
+  };
+
+  const saveSiteSettings = async () => {
+    if (!siteSettingsForm || !firebase || !firestore) return;
+    if (!siteSettingsForm.checkValidity()) {
+      siteSettingsForm.reportValidity();
+      return;
+    }
+    const message = $('[data-site-settings-message]');
+    const button = $('[data-save-site-settings]');
+    const payload = siteSettingsPayload();
+    if (!payload.heroCtaHref) {
+      setMessage(message, 'Use a local .html page or a public HTTPS URL for the primary call-to-action link.', true);
+      return;
+    }
+    if (!isEmail(payload.contactEmail)) {
+      setMessage(message, 'Enter a valid public contact email address.', true);
+      return;
+    }
+    if (!/^[0-9+() .-]{7,40}$/.test(payload.contactPhone)) {
+      setMessage(message, 'Enter a valid public phone number.', true);
+      return;
+    }
+    button.disabled = true;
+    setMessage(message, 'Publishing homepage content…');
+    try {
+      await firestore.setDoc(firestore.doc(firebase.db, 'siteSettings', 'public'), { ...payload, updatedAt: firestore.serverTimestamp() });
+      siteSettings = payload;
+      setMessage(message, 'Homepage content saved. Refresh the public homepage to review the live update.');
+    } catch (error) {
+      setMessage(message, authErrorMessage(error), true);
+    } finally {
+      button.disabled = false;
+    }
   };
 
   const renderProjects = () => {
@@ -486,6 +643,7 @@
     if (!user) {
       stopProjectSubscription();
       stopLeadSubscriptions();
+      siteSettings = null;
       showMode('login');
       return;
     }
@@ -503,12 +661,17 @@
       return;
     }
     showMode('dashboard');
+    setDashboardView(activeDashboardView);
     subscribeToProjects();
     subscribeToEnquiries();
     subscribeToSubscribers();
+    loadSiteSettings();
   };
 
   const bindEvents = () => {
+    dashboardNavigation.forEach((button) => button.addEventListener('click', () => setDashboardView(button.dataset.dashboardNav, true)));
+    dashboardJumpButtons.forEach((button) => button.addEventListener('click', () => setDashboardView(button.dataset.dashboardJump, true)));
+    siteSettingsForm?.addEventListener('submit', (event) => { event.preventDefault(); saveSiteSettings(); });
     $('[data-show-setup]')?.addEventListener('click', () => { showMode('setup'); setMessage($('[data-setup-message]')); });
     $('[data-show-login]')?.addEventListener('click', () => { showMode('login'); setMessage($('[data-login-message]')); });
 

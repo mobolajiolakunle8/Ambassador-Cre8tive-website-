@@ -136,6 +136,43 @@ service cloud.firestore {
         && request.resource.data.updatedAt is timestamp;
     }
 
+    function validPublicSiteSettings() {
+      return request.resource.data.keys().hasOnly([
+          'heroLineOne', 'heroHighlightOne', 'heroLineTwo', 'heroHighlightTwo', 'heroIntro',
+          'heroCtaLabel', 'heroCtaHref', 'aboutCopy', 'footerKicker', 'footerLineOne',
+          'footerLineTwo', 'footerHighlight', 'contactEmail', 'contactPhone', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'heroLineOne', 'heroHighlightOne', 'heroLineTwo', 'heroHighlightTwo', 'heroIntro',
+          'heroCtaLabel', 'heroCtaHref', 'aboutCopy', 'footerKicker', 'footerLineOne',
+          'footerLineTwo', 'footerHighlight', 'contactEmail', 'contactPhone', 'updatedAt'
+        ])
+        && validText(request.resource.data.heroLineOne, 80)
+        && validText(request.resource.data.heroHighlightOne, 80)
+        && validText(request.resource.data.heroLineTwo, 80)
+        && validText(request.resource.data.heroHighlightTwo, 80)
+        && validText(request.resource.data.heroIntro, 380)
+        && validText(request.resource.data.heroCtaLabel, 60)
+        && validText(request.resource.data.heroCtaHref, 500)
+        && validText(request.resource.data.aboutCopy, 650)
+        && validText(request.resource.data.footerKicker, 80)
+        && validText(request.resource.data.footerLineOne, 80)
+        && validText(request.resource.data.footerLineTwo, 80)
+        && validText(request.resource.data.footerHighlight, 80)
+        && validText(request.resource.data.contactEmail, 254)
+        && validText(request.resource.data.contactPhone, 40)
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /siteSettings/{settingId} {
+      // This one public document holds presentation-only content. It intentionally excludes
+      // credentials, private workflow data, and any arbitrary HTML from the public website.
+      allow get: if settingId == 'public';
+      allow list: if false;
+      allow create, update: if isAdmin() && settingId == 'public' && validPublicSiteSettings();
+      allow delete: if isAdmin() && settingId == 'public';
+    }
+
     match /projects/{projectId} {
       // Public pages query published projects only. Administrators can also view drafts.
       allow get, list: if resource.data.published == true || isAdmin();

@@ -17,7 +17,6 @@ const required = [
 const optionalPublic = [
   'BOOKING_URL',
   'WHATSAPP_NUMBER',
-  'BETHEL_APP_URL',
   'PUBLIC_SITE_URL',
   'GOOGLE_BUSINESS_PROFILE_URL',
   'GOOGLE_SITE_VERIFICATION',
@@ -31,7 +30,7 @@ const htmlFiles = [
 const publicFiles = [
   ...htmlFiles,
   'styles.css', 'admin.css',
-  'app.js', 'posts.js', 'projects.js', 'project.js', 'admin.js', 'contact.js', 'newsletter.js', 'integrations.js', 'unsubscribe.js', 'confirm-subscription.js',
+  'app.js', 'posts.js', 'projects.js', 'project.js', 'admin.js', 'contact.js', 'newsletter.js', 'integrations.js', 'site-content.js', 'unsubscribe.js', 'confirm-subscription.js',
   'robots.txt',
 ];
 

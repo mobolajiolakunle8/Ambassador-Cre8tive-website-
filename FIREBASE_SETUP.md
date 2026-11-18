@@ -42,6 +42,10 @@ The repository is already linked to `website-f3cc6` through `.firebaserc`, so `f
 
 Only that verified email can read drafts or create, edit, publish, and delete projects. Each project image is supplied as a public HTTPS image link (starter `assets/...` paths remain supported); the dashboard validates and previews the link before saving. It can also read private project briefs and confirmed newsletter-consent records in the dashboard. Public newsletter requests are stored only as pending records; Vercel’s server-side confirmation flow must activate them before delivery. The Firestore rules enforce this on the server; client-side checks are only convenience features.
 
+## Homepage content controls
+
+The **Website copy** workspace in `/admin` stores presentation-only homepage content in the single Firestore document `siteSettings/public`. It controls the homepage hero wording, primary call to action, studio introduction, footer invitation, and public email/phone details. It never stores credentials, private lead data, or arbitrary HTML. The public site safely retains its built-in content until this document is first saved, so there is no blank-state risk during setup.
+
 ## Deployment notes
 
 - `server.py` and `data/` are excluded from Firebase Hosting. They remain useful only for the local Arena preview/fallback development server.

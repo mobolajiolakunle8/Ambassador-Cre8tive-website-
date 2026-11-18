@@ -19,7 +19,7 @@
       <div class="admin-auth__card" data-login-card>
         <span class="admin-kicker">Firebase administrator login</span>
         <h1>Welcome back.</h1>
-        <p>Sign in with the approved Ambassador Cre8tive administrator account to manage portfolio work, incoming project briefs, newsletter contacts, and public project-image links.</p>
+        <p>Sign in with the approved Ambassador Cre8tive administrator account to manage homepage copy, portfolio work, incoming project briefs, newsletter contacts, and public project-image links.</p>
         <form data-login-form>
           <label for="login-password">Password</label>
           <input id="login-password" name="password" type="password" autocomplete="current-password" required />
@@ -57,14 +57,43 @@
 
     <section class="admin-dashboard" data-dashboard hidden>
       <aside class="admin-sidebar">
-        <span class="admin-kicker">Firebase content manager</span>
-        <h1>Project<br /><em>workspace.</em></h1>
-        <p>Use public project-image links, manage case-study proof, review incoming project briefs, and publish completed projects directly to the public portfolio.</p>
-        <dl class="admin-stats"><div><dt data-project-count>0</dt><dd>projects saved</dd></div><div><dt data-published-count>0</dt><dd>currently visible</dd></div><div><dt data-enquiry-count>0</dt><dd>new enquiries</dd></div><div><dt data-subscriber-count>0</dt><dd>newsletter contacts</dd></div></dl>
-        <p class="admin-sidebar__note">Tip: use a stable, public HTTPS JPG, PNG, or WebP image link for the strongest crop. Keep ownership and publishing permission for every image and client quote.</p>
+        <div class="admin-sidebar__intro">
+          <span class="admin-kicker">Creative control centre</span>
+          <h1>Studio<br /><em>workspace.</em></h1>
+          <p>Shape the work people see, keep every lead moving, and make thoughtful updates without touching the code.</p>
+        </div>
+
+        <nav class="admin-dashboard-nav" aria-label="Dashboard sections">
+          <button class="admin-dashboard-nav__item is-active" type="button" data-dashboard-nav="overview" aria-current="page"><span>01</span><strong>Overview</strong><small>Your studio at a glance</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="portfolio"><span>02</span><strong>Portfolio</strong><small>Projects and case studies</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="homepage"><span>03</span><strong>Website copy</strong><small>Homepage and contact details</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="enquiries"><span>04</span><strong>Lead inbox</strong><small>Project conversations</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="audience"><span>05</span><strong>Audience</strong><small>Subscribers and campaigns</small></button>
+        </nav>
+
+        <dl class="admin-stats" aria-label="Workspace summary"><div><dt data-project-count>0</dt><dd>projects saved</dd></div><div><dt data-published-count>0</dt><dd>currently visible</dd></div><div><dt data-enquiry-count>0</dt><dd>new enquiries</dd></div><div><dt data-subscriber-count>0</dt><dd>newsletter contacts</dd></div></dl>
+        <p class="admin-sidebar__note">Publish with care: use approved work, verified client quotes, and stable public HTTPS image links. New image files are not uploaded to Firebase Storage.</p>
       </aside>
 
       <div class="admin-content">
+        <section class="admin-dashboard-view admin-overview" data-dashboard-view="overview" aria-labelledby="workspace-overview-title">
+          <div class="admin-view-hero">
+            <div><span class="admin-kicker">Today’s studio view</span><h2 id="workspace-overview-title">Make the next<br /><em>move count.</em></h2><p>Review what is live, where new conversations are waiting, and the next meaningful update for your public website.</p></div>
+            <div class="admin-view-hero__actions"><button class="admin-primary" type="button" data-dashboard-jump="portfolio">Add a project <span>↗</span></button><button class="admin-text-button" type="button" data-dashboard-jump="homepage">Edit homepage</button></div>
+          </div>
+          <div class="admin-overview-grid" aria-label="Website snapshot">
+            <article><span>Published work</span><strong data-overview-published>0</strong><p>Projects currently visible on the public portfolio.</p></article>
+            <article><span>New leads</span><strong data-overview-enquiries>0</strong><p>Briefs that have not yet moved into follow-up.</p></article>
+            <article><span>Consent contacts</span><strong data-overview-subscribers>0</strong><p>Confirmed people eligible for creative notes.</p></article>
+          </div>
+          <div class="admin-overview-columns">
+            <section class="admin-overview-card" aria-labelledby="overview-enquiries-title"><div class="admin-overview-card__heading"><div><span class="admin-kicker">Attention queue</span><h3 id="overview-enquiries-title">Newest project briefs</h3></div><button class="admin-text-button" type="button" data-dashboard-jump="enquiries">Open inbox</button></div><div data-dashboard-recent-enquiries><p class="admin-empty">Loading private project briefs…</p></div></section>
+            <section class="admin-overview-card" aria-labelledby="overview-projects-title"><div class="admin-overview-card__heading"><div><span class="admin-kicker">Publishing desk</span><h3 id="overview-projects-title">Recent portfolio work</h3></div><button class="admin-text-button" type="button" data-dashboard-jump="portfolio">Manage work</button></div><div data-dashboard-recent-projects><p class="admin-empty">Loading projects…</p></div></section>
+          </div>
+          <section class="admin-publish-guide" aria-labelledby="publish-guide-title"><span class="admin-kicker">Studio standard</span><h3 id="publish-guide-title">Before you publish</h3><ol><li>Use only client-approved names, images, and quotes.</li><li>Check the public project link and image crop before marking work live.</li><li>Move new enquiries to “Contacted” once a real follow-up has been sent.</li></ol></section>
+        </section>
+
+        <section class="admin-dashboard-view" data-dashboard-view="portfolio" hidden aria-label="Portfolio workspace">
         <section class="admin-seed" data-seed-panel hidden aria-labelledby="seed-title"><div><span class="admin-kicker">First launch</span><h2 id="seed-title">Bring in your starter work.</h2><p>Import the five existing portfolio entries into Firestore once. You can edit or remove them afterwards.</p></div><div><button class="admin-primary" type="button" data-seed-projects>Import starter portfolio <span>↗</span></button><p class="admin-message" data-seed-message aria-live="polite"></p></div></section>
 
         <section class="admin-panel" aria-labelledby="project-form-title">
@@ -101,12 +130,44 @@
           <div class="admin-project-list" data-project-list aria-live="polite"></div>
         </section>
 
+        </section>
+
+        <section class="admin-dashboard-view" data-dashboard-view="homepage" hidden aria-labelledby="homepage-settings-title">
+          <section class="admin-panel admin-settings">
+            <div class="admin-panel__heading"><div><span class="admin-kicker">Website content</span><h2 id="homepage-settings-title">Shape the homepage.</h2></div><a class="admin-text-button" href="/index.html" target="_blank" rel="noopener">Preview homepage ↗</a></div>
+            <p class="admin-panel__intro">Update the public homepage’s opening message, central call to action, studio introduction, footer invitation, and contact details. Changes are stored in Firestore and appear on a visitor refresh. The layout and brand system stay protected.</p>
+            <form class="admin-site-settings-form" data-site-settings-form>
+              <div class="admin-form-grid">
+                <div class="admin-field"><label for="settings-hero-line-one">Hero line one *</label><input id="settings-hero-line-one" name="heroLineOne" maxlength="80" required /></div>
+                <div class="admin-field"><label for="settings-hero-highlight-one">Hero highlight one *</label><input id="settings-hero-highlight-one" name="heroHighlightOne" maxlength="80" required /></div>
+                <div class="admin-field"><label for="settings-hero-line-two">Hero line two *</label><input id="settings-hero-line-two" name="heroLineTwo" maxlength="80" required /></div>
+                <div class="admin-field"><label for="settings-hero-highlight-two">Hero highlight two *</label><input id="settings-hero-highlight-two" name="heroHighlightTwo" maxlength="80" required /></div>
+                <div class="admin-field admin-field--full"><label for="settings-hero-intro">Hero introduction *</label><textarea id="settings-hero-intro" name="heroIntro" maxlength="380" required></textarea></div>
+                <div class="admin-field"><label for="settings-hero-cta-label">Primary CTA label *</label><input id="settings-hero-cta-label" name="heroCtaLabel" maxlength="60" required /></div>
+                <div class="admin-field"><label for="settings-hero-cta-href">Primary CTA link *</label><input id="settings-hero-cta-href" name="heroCtaHref" maxlength="500" required placeholder="contact.html?topic=Discovery%20call" /><small>Use a local page such as <code>contact.html</code> or a public HTTPS URL.</small></div>
+                <div class="admin-field admin-field--full"><label for="settings-about-copy">Studio introduction</label><textarea id="settings-about-copy" name="aboutCopy" maxlength="650"></textarea></div>
+                <div class="admin-field"><label for="settings-footer-kicker">Footer invitation label</label><input id="settings-footer-kicker" name="footerKicker" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-footer-line-one">Footer invitation line one</label><input id="settings-footer-line-one" name="footerLineOne" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-footer-line-two">Footer invitation line two</label><input id="settings-footer-line-two" name="footerLineTwo" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-footer-highlight">Footer highlight</label><input id="settings-footer-highlight" name="footerHighlight" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-contact-email">Public contact email *</label><input id="settings-contact-email" name="contactEmail" type="email" maxlength="254" required /></div>
+                <div class="admin-field"><label for="settings-contact-phone">Public phone number *</label><input id="settings-contact-phone" name="contactPhone" maxlength="40" required /></div>
+              </div>
+              <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-site-settings>Save homepage content <span>↗</span></button><p class="admin-message" data-site-settings-message aria-live="polite"></p></div>
+            </form>
+          </section>
+        </section>
+
+        <section class="admin-dashboard-view" data-dashboard-view="enquiries" hidden aria-label="Lead inbox">
         <section class="admin-panel admin-enquiries" aria-labelledby="enquiries-title">
           <div class="admin-panel__heading"><div><span class="admin-kicker">Lead inbox</span><h2 id="enquiries-title">Project enquiries</h2></div><button class="admin-text-button" type="button" data-refresh-enquiries>Refresh</button></div>
           <p class="admin-panel__intro">Briefs submitted from the website are private. Update their stage and add internal notes here; neither is visible to the enquirer.</p>
           <div class="admin-enquiry-list" data-enquiry-list aria-live="polite"></div>
         </section>
 
+        </section>
+
+        <section class="admin-dashboard-view" data-dashboard-view="audience" hidden aria-label="Audience and campaigns">
         <section class="admin-panel admin-subscribers" aria-labelledby="subscribers-title">
           <div class="admin-panel__heading"><div><span class="admin-kicker">Newsletter consent list</span><h2 id="subscribers-title">Subscribed contacts</h2></div><button class="admin-text-button" type="button" data-refresh-subscribers>Refresh</button></div>
           <p class="admin-panel__intro">Use only with consent-based newsletter delivery. Subscribers can opt out through a signed link in every campaign.</p>
@@ -126,6 +187,7 @@
             <label class="admin-consent-check"><input name="confirm" type="checkbox" required /> I confirm this message is intended for consented subscribers and includes no fabricated proof or sensitive information.</label>
             <div class="admin-form-actions"><button class="admin-primary" type="submit" data-send-newsletter>Send to subscribed contacts <span>↗</span></button><p class="admin-message" data-newsletter-campaign-message aria-live="polite"></p></div>
           </form>
+        </section>
         </section>
       </div>
     </section>
