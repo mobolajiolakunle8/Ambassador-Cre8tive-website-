@@ -126,10 +126,36 @@
     });
   });
 
-  // A short, brand-led welcome appears on every public page load. It is intentionally not
-  // persisted in local storage, so visitors see it again after navigating or refreshing.
+  // A short, brand-led welcome appears once per visitor browser, per local calendar day.
+  // Storage is deliberately browser-local: it does not identify visitors or follow them across devices.
+  const WELCOME_DAY_KEY = 'ambassador-cre8tive.welcome-note.day';
+  const welcomeDay = (date = new Date()) => [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0'),
+  ].join('-');
+  const storedWelcomeDay = () => {
+    const values = [];
+    try { values.push(window.localStorage.getItem(WELCOME_DAY_KEY) || ''); } catch { /* Storage can be disabled. */ }
+    try {
+      const cookie = document.cookie.split('; ').find((item) => item.startsWith(`${WELCOME_DAY_KEY}=`));
+      values.push(cookie ? decodeURIComponent(cookie.slice(WELCOME_DAY_KEY.length + 1)) : '');
+    } catch { /* Cookie access can be disabled. */ }
+    return values;
+  };
+  const rememberWelcomeDay = (day) => {
+    try { window.localStorage.setItem(WELCOME_DAY_KEY, day); } catch { /* Cookie fallback below. */ }
+    try { document.cookie = `${WELCOME_DAY_KEY}=${encodeURIComponent(day)}; Max-Age=172800; Path=/; SameSite=Lax`; } catch { /* Best effort only. */ }
+  };
   const showWelcomeNote = () => {
-    if (body.dataset.disableWelcome === 'true' || document.querySelector('[data-welcome-note]')) return;
+    const today = welcomeDay();
+    if (
+      body.dataset.disableWelcome === 'true'
+      || document.querySelector('[data-welcome-note]')
+      || storedWelcomeDay().includes(today)
+    ) return;
+    // Record when the dialog is shown, not when it is closed, so page navigation cannot repeat it.
+    rememberWelcomeDay(today);
     const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const note = document.createElement('section');
     note.className = 'welcome-note';

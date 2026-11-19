@@ -2,7 +2,9 @@
 
 > For the complete enquiry CRM, newsletter-consent, App Check, backup, multi-admin, Resend, booking, analytics, and local-search runbook, see [`OPERATIONS_GUIDE.md`](OPERATIONS_GUIDE.md).
 
-The public site and admin dashboard are configured to use Firebase in production once deployed:
+The public site and admin dashboard are configured to use Firebase in production once deployed. The browser Firebase SDK modules are served from the site itself, rather than loaded as third-party CDN modules, so the dashboard can also initialise in restricted previews.
+
+The configuration includes:
 
 - **Firebase Authentication** — password sign-in for `mobolajiolakunle8@gmail.com`
 - **Cloud Firestore** — published projects, drafts, case-study details, verified testimonials, private project briefs, and newsletter consents

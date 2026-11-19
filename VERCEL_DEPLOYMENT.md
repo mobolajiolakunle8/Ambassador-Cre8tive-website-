@@ -6,7 +6,7 @@ This package supports Vercel static deployment and small same-origin Vercel API 
 
 Vercel installs production dependencies only, runs `npm run build:vercel`, and deploys the generated `vercel-static/` directory as public pages. The build copies public website files and assets, then generates `firebase-config.js` and the browser-visible `web3forms-config.js` from environment variables. Web3Forms handles individual contact-form and creative-notes request notifications directly from the browser. Vercel also deploys the root `api/` directory as server-side functions for optional signed newsletter confirmation, consent-based campaign delivery, and unsubscribe handling.
 
-The Python preview server, local JSON data, Firebase rules, and environment files are not included in the public Vercel output. The API source is server-side and its private credentials remain Vercel environment variables.
+The Python preview server, local JSON data, Firebase rules, and environment files are not included in the public Vercel output. The Firebase browser SDK modules are vendored as same-origin public assets, so the admin dashboard does not depend on third-party CDN module imports at page load. The API source is server-side and its private credentials remain Vercel environment variables.
 
 ## Configure Vercel environment variables
 

@@ -823,8 +823,8 @@
     try {
       const [config, authModule, firestoreModule] = await Promise.all([
         import('./firebase-config.js'),
-        import('https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js'),
-        import('https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js'),
+        import('./firebase-auth.js'),
+        import('./firebase-firestore.js'),
       ]);
       firebase = config;
       authSdk = authModule;

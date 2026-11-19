@@ -6,7 +6,7 @@
   // into a deliverable newsletter subscriber. Web3Forms sends the notification to the studio.
   const firebaseRuntime = Promise.all([
     import('./firebase-config.js'),
-    import('https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js'),
+    import('./firebase-firestore.js'),
   ]).then(([config, firestore]) => ({ config, firestore })).catch(() => null);
 
   const captureNewsletterRequest = async (email) => {

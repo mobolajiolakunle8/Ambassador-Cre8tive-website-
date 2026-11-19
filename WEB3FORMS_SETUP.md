@@ -30,6 +30,14 @@ The build injects that value into the deployed `web3forms-config.js` file. This 
 
 The existing secure campaign tooling stays disabled for public Web3Forms requests: only records explicitly verified as `subscribed` are eligible. If a consent-based campaign workflow is enabled later, configure its separate server-side delivery credentials and test signed unsubscribe handling before sending.
 
-## Local release note
+## Local preview and release note
 
 This release leaves `web3forms-config.js` blank in source control. That prevents the supplied form identifier from being copied into a downloadable source archive by default. The Vercel build populates it when the environment variable above is configured.
+
+For a local preview, start the included server with the same environment variable instead of editing the source file:
+
+```bash
+WEB3FORMS_ACCESS_KEY="your-public-web3forms-access-key" PORT=4175 python3 server.py
+```
+
+The preview server supplies the browser-visible configuration only while it is running; it does not write the access key to the source tree.

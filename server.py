@@ -38,7 +38,7 @@ SESSION_SECONDS = 60 * 60 * 12
 ALLOWED_CATEGORIES = {"identity", "campaign", "digital", "print"}
 PUBLIC_ROOT_FILES = {
     "index.html", "about.html", "services.html", "portfolio.html", "project.html", "blog.html", "post.html", "contact.html", "search.html", "privacy.html", "admin.html", "unsubscribe.html", "confirm-subscription.html", "robots.txt",
-    "styles.css", "app.js", "posts.js", "projects.js", "project.js", "firebase-config.js", "web3forms-config.js", "web3forms.js", "admin.css", "admin.js", "contact.js", "newsletter.js", "integrations.js", "site-content.js", "unsubscribe.js", "confirm-subscription.js",
+    "styles.css", "app.js", "posts.js", "projects.js", "project.js", "firebase-config.js", "firebase-app.js", "firebase-auth.js", "firebase-firestore.js", "firebase-analytics.js", "firebase-app-check.js", "web3forms-config.js", "web3forms.js", "admin.css", "admin.js", "contact.js", "newsletter.js", "integrations.js", "site-content.js", "unsubscribe.js", "confirm-subscription.js",
 }
 PUBLIC_ASSET_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".ico", ".ttf", ".woff", ".woff2", ".mp3", ".mp4", ".pdf"}
 
@@ -383,6 +383,11 @@ class SiteHandler(BaseHTTPRequestHandler):
         if path in {"/admin", "/admin/"}:
             self.serve_file(ROOT / "admin.html")
             return
+        # Web3Forms uses a browser-visible form identifier. Keep the source file blank while
+        # allowing an explicitly supplied local preview environment variable to populate it.
+        if path == "/web3forms-config.js" and os.environ.get("WEB3FORMS_ACCESS_KEY", "").strip():
+            self.serve_web3forms_config()
+            return
         self.serve_static(path)
 
     def do_POST(self) -> None:
@@ -488,6 +493,21 @@ class SiteHandler(BaseHTTPRequestHandler):
             return
         write_json(PROJECTS_FILE, retained)
         self.send_json(HTTPStatus.OK, {"ok": True, "deleted": project_id})
+
+    def serve_web3forms_config(self) -> None:
+        # This is intentionally public browser configuration, matching Web3Forms' client-side
+        # integration model. It is never used for privileged server operations.
+        access_key = os.environ.get("WEB3FORMS_ACCESS_KEY", "").strip()[:300]
+        data = (
+            "// Generated for this local preview only.\n"
+            f"window.AmbassadorWeb3FormsConfig = Object.freeze({{ accessKey: {json.dumps(access_key)} }});\n"
+        ).encode("utf-8")
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/javascript; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-cache")
+        self.end_headers()
+        self.wfile.write(data)
 
     def serve_static(self, request_path: str) -> None:
         relative = "index.html" if request_path in {"", "/"} else unquote(request_path).lstrip("/")

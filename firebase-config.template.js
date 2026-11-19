@@ -1,7 +1,9 @@
 // Generated at Vercel build time from Firebase environment variables.
-import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
-import { getAuth } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
-import { getFirestore } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+// Serve the Firebase browser SDK from this origin so the dashboard also works in a restricted
+// local preview where third-party module imports are blocked.
+import { initializeApp, getApps, getApp } from './firebase-app.js';
+import { getAuth } from './firebase-auth.js';
+import { getFirestore } from './firebase-firestore.js';
 
 export const firebaseConfig = {
   apiKey: __FIREBASE_API_KEY__,
@@ -31,7 +33,7 @@ export const db = getFirestore(app);
 export let analytics = null;
 let logAnalyticsEvent = null;
 if (typeof window !== 'undefined') {
-  import('https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js')
+  import('./firebase-analytics.js')
     .then(({ getAnalytics, isSupported, logEvent }) => isSupported().then((supported) => {
       if (supported) {
         analytics = getAnalytics(app);
@@ -60,7 +62,7 @@ export const trackEvent = (name, parameters = {}) => {
 // App Check is optional until a reCAPTCHA v3 site key is registered in Firebase Console.
 // Once configured, Firebase can enforce App Check for Firestore requests.
 if (APP_CHECK_SITE_KEY && typeof window !== 'undefined') {
-  import('https://www.gstatic.com/firebasejs/12.8.0/firebase-app-check.js')
+  import('./firebase-app-check.js')
     .then(({ initializeAppCheck, ReCaptchaV3Provider }) => initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider(APP_CHECK_SITE_KEY),
       isTokenAutoRefreshEnabled: true,

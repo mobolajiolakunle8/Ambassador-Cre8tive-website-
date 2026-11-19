@@ -68,7 +68,7 @@
     try {
       const [{ db }, firestore] = await Promise.all([
         import('./firebase-config.js'),
-        import('https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js'),
+        import('./firebase-firestore.js'),
       ]);
       const { collection, onSnapshot, query, where } = firestore;
       const publishedQuery = query(collection(db, 'projects'), where('published', '==', true));

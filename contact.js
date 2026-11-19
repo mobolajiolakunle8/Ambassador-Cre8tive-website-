@@ -42,7 +42,7 @@
   // for it, so a visitor can still reach the studio through Web3Forms if Firebase is unavailable.
   const firebaseRuntime = Promise.all([
     import('./firebase-config.js'),
-    import('https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js'),
+    import('./firebase-firestore.js'),
   ]).then(([config, firestore]) => ({ config, firestore })).catch(() => null);
 
   const captureLead = async (payload) => {

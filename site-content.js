@@ -72,7 +72,7 @@
     try {
       const [{ db }, firestore] = await Promise.all([
         import('./firebase-config.js'),
-        import('https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js'),
+        import('./firebase-firestore.js'),
       ]);
       const snapshot = await firestore.getDoc(firestore.doc(db, 'siteSettings', 'public'));
       if (snapshot.exists()) applySettings(snapshot.data());

@@ -31,6 +31,7 @@ const publicFiles = [
   ...htmlFiles,
   'styles.css', 'admin.css',
   'app.js', 'posts.js', 'projects.js', 'project.js', 'admin.js', 'contact.js', 'newsletter.js', 'web3forms.js', 'integrations.js', 'site-content.js', 'unsubscribe.js', 'confirm-subscription.js',
+  'firebase-app.js', 'firebase-auth.js', 'firebase-firestore.js', 'firebase-analytics.js', 'firebase-app-check.js',
   'robots.txt',
 ];
 
