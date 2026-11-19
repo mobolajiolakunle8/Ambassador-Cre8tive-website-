@@ -131,7 +131,7 @@
       </section>
 
       <section class="client-proof" data-client-proof-section aria-labelledby="client-proof-title" hidden>
-        <div class="container"><div class="client-proof__heading reveal reveal--up"><span class="eyebrow">Client perspective</span><h2 id="client-proof-title">Words from the people behind the work.</h2></div><div class="client-proof__grid" data-client-proof></div></div>
+        <div class="container"><div class="client-proof__heading reveal reveal--up"><span class="eyebrow" data-home-testimonials-kicker>Client perspective</span><h2 id="client-proof-title" data-home-testimonials-title>Words from the people behind the work.</h2></div><div class="client-proof__grid" data-client-proof></div></div>
       </section>
 
       <section class="about section-rain" id="about" aria-labelledby="about-title">
@@ -260,6 +260,33 @@
         </div>
       </section>
 
+      <section class="availability" aria-labelledby="availability-title">
+        <div class="container availability__shell">
+          <div class="availability__copy reveal reveal--up">
+            <span class="eyebrow eyebrow--lime" data-home-availability-kicker>Studio availability</span>
+            <h2 id="availability-title" data-home-availability-title>Ready when the right<br />brief is.</h2>
+            <p data-home-availability-copy>Tell us what you are building, what needs to change, and where you would like the work to take your brand. We will help you find the most useful next step.</p>
+            <p class="availability__status" data-home-availability-status>Currently accepting selected projects.</p>
+          </div>
+          <div class="availability__action reveal reveal--up">
+            <span>Have a clear next move in mind?</span>
+            <a class="button button--lime" data-home-availability-cta href="contact.html?topic=Discovery%20call"><span data-home-availability-label>Start a project</span> <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="process" aria-labelledby="process-title">
+        <div class="container">
+          <div class="process__heading reveal reveal--up"><span class="eyebrow" data-home-process-kicker>How we work</span><h2 id="process-title" data-home-process-title>A focused path from<br />brief to delivery.</h2><p data-home-process-intro>Every project is shaped around the problem that matters most, with clear decisions and thoughtful collaboration from the first conversation onward.</p></div>
+          <ol class="process-grid">
+            <li class="process-step reveal reveal--up"><span>01</span><h3 data-home-process-step-1-title>Discover</h3><p data-home-process-step-1-copy>We clarify the business goal, audience, priorities, and practical context behind the brief.</p></li>
+            <li class="process-step reveal reveal--up"><span>02</span><h3 data-home-process-step-2-title>Define</h3><p data-home-process-step-2-copy>We turn the brief into a focused creative direction, scope, and route forward.</p></li>
+            <li class="process-step reveal reveal--up"><span>03</span><h3 data-home-process-step-3-title>Design</h3><p data-home-process-step-3-copy>We build the visual system and key materials with considered feedback at the right moments.</p></li>
+            <li class="process-step reveal reveal--up"><span>04</span><h3 data-home-process-step-4-title>Deliver</h3><p data-home-process-step-4-copy>We hand over practical, ready-to-use work that helps your team move with confidence.</p></li>
+          </ol>
+        </div>
+      </section>
+
       <section class="insights" id="insights" aria-labelledby="insights-title">
         <div class="container">
           <div class="section-heading reveal reveal--up">
@@ -269,11 +296,8 @@
             </div>
             <a class="text-link" href="blog.html">All insights <span aria-hidden="true">↗</span></a>
           </div>
-          <div class="insight-list">
-            <a href="post.html?slug=brand-foundations-nigeria" class="insight reveal reveal--up"><span>01</span><time datetime="2026-11-15">15 Nov 2026</time><strong>A practical brand checklist for growing businesses in Nigeria</strong><i>↗</i></a>
-            <a href="post.html?slug=brand-viewpoint" class="insight reveal reveal--up"><span>02</span><time datetime="2026-05-14">14 May 2026</time><strong>How a sharper point of view turns a business into a brand</strong><i>↗</i></a>
-            <a href="post.html?slug=design-systems" class="insight reveal reveal--up"><span>03</span><time datetime="2026-04-21">21 Apr 2026</time><strong>Designing a visual system your team can actually use</strong><i>↗</i></a>
-          </div>
+          <div class="insight-list" data-home-insights aria-live="polite" hidden></div>
+          <div class="journal-empty-state" data-home-insights-empty><p>New notes from the studio will appear here soon.</p><a class="text-link" href="contact.html?topic=Discovery%20call">Start a conversation <span aria-hidden="true">↗</span></a></div>
         </div>
       </section>
     </main>
@@ -311,6 +335,8 @@
   <script src="web3forms.js"></script>
   <script src="newsletter.js"></script>
   <script src="projects.js"></script>
+  <script src="testimonials.js"></script>
+  <script src="posts.js"></script>
   <script src="site-content.js"></script>
 </body>
 </html>

@@ -16,8 +16,8 @@ This site keeps public portfolio content and private lead data in Firebase proje
 
 2. **Firestore and public image links**
    - Create Firestore in production mode. The portfolio does not upload images to Cloud Storage; its narrow read-only rule is only for older published Firebase Storage image links, if any.
-   - The dashboard holds leads in `enquiries`, newsletter consents in `subscribers`, and case studies in `projects`.
-   - For each project image, use a durable public `https://` image URL; the dashboard previews and validates it before saving. Existing starter `assets/...` paths remain valid.
+   - The dashboard holds leads in `enquiries`, newsletter consents in `subscribers`, case studies in `projects`, client-approved quotes in `testimonials`, editable articles in `journalPosts`, and presentation-only homepage copy in `siteSettings/public`.
+   - For each project or journal image, use a durable public `https://` image URL; appropriate local `assets/...` paths remain supported. New uploads are not sent to Firebase Storage.
    - The site does not require Realtime Database. Its rules deliberately deny every read and write.
 
 3. **App Check**
@@ -78,9 +78,9 @@ When `VERCEL_ANALYTICS_ENABLED=true`, the public integration bootstrap also load
 - Before enabling that optional campaign workflow, set `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `PUBLIC_SITE_URL`, and a unique `NEWSLETTER_UNSUBSCRIBE_SECRET` of at least 32 random characters. Set `CRON_SECRET` as well if a server-side scheduled task will continue an existing campaign.
 - Do not send campaigns until you have a privacy notice, a lawful consent basis, a tested unsubscribe route, and a sender domain verified in the delivery provider. Send a real test campaign to a consenting internal address first.
 
-## Testimonials and client proof
+## Testimonials, journal, and client proof
 
-Only add a testimonial to a project when you have the exact client-approved quote and attribution. Leave those fields blank otherwise; public testimonial components remain hidden. For client logos, project outcomes, metrics, awards, or named case studies, obtain written permission and record the source/approval date in your internal workflow.
+Only add a testimonial in the **Social proof** workspace when you have the exact client-approved quote and attribution. Keep it as a private draft until the client approval is confirmed; public testimonial components remain hidden until it is explicitly published. Journal notes are plain-text Firestore content and also begin as private drafts. The dashboard auto-saves ordinary edits after a brief pause and synchronises them across signed-in browsers; if two browsers change the same field simultaneously, the most recently saved version wins. For client logos, project outcomes, metrics, awards, or named case studies, obtain written permission and record the source/approval date in your internal workflow.
 
 ## Backups and recovery
 

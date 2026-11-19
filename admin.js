@@ -8,10 +8,10 @@
       return ['https:', 'http:'].includes(url.protocol) ? url.toString() : '';
     } catch { return ''; }
   };
-  const isStarterAssetImage = (value = '') => /^assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.(?:avif|gif|jpe?g|png|webp|svg)$/i.test(String(value));
+  const isLocalAssetImage = (value = '') => /^assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.(?:avif|gif|jpe?g|png|webp|svg)$/i.test(String(value));
   const safeProjectImageUrl = (value = '') => {
     const raw = String(value).trim();
-    if (isStarterAssetImage(raw)) return raw;
+    if (isLocalAssetImage(raw)) return raw;
     try {
       const url = new URL(raw);
       return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url.toString() : '';
@@ -506,7 +506,7 @@
       imageLinkPreviewImage.onerror = null;
       imageLinkPreviewImage.removeAttribute('src');
       imageLinkPreviewAnchor.removeAttribute('href');
-      if (String(value).trim()) setMessage(imageLinkStatus, 'Use a public HTTPS image link, or a local assets/… starter-image path.', true);
+      if (String(value).trim()) setMessage(imageLinkStatus, 'Use a public HTTPS image link or a valid local assets/… image path.', true);
       else setMessage(imageLinkStatus);
       return false;
     }
@@ -530,7 +530,7 @@
     projectForm.reset();
     projectId.value = '';
     projectStoragePath.value = '';
-    projectForm.elements.published.checked = true;
+    projectForm.elements.published.checked = false;
     projectForm.elements.featured.checked = false;
     setImagePreview();
     formHeading.textContent = 'Add a project';
@@ -597,8 +597,8 @@
     }
     const message = $('[data-project-message]');
     const payload = projectPayload();
-    if (!payload.image) {
-      setMessage(message, 'Paste a public HTTPS image link or a valid assets/… starter-image path before saving.', true);
+    if (payload.published && !payload.image) {
+      setMessage(message, 'Publishing requires a public HTTPS image link or a valid local assets/… image path. You can still save an unfinished draft automatically.', true);
       return;
     }
     const existingId = projectId.value;
@@ -681,13 +681,12 @@
     subscribeToProjects();
     subscribeToEnquiries();
     subscribeToSubscribers();
-    loadSiteSettings();
+    // Live site settings and autosave are handled by admin-content.js after verified sign-in.
   };
 
   const bindEvents = () => {
     dashboardNavigation.forEach((button) => button.addEventListener('click', () => setDashboardView(button.dataset.dashboardNav, true)));
     dashboardJumpButtons.forEach((button) => button.addEventListener('click', () => setDashboardView(button.dataset.dashboardJump, true)));
-    siteSettingsForm?.addEventListener('submit', (event) => { event.preventDefault(); saveSiteSettings(); });
     $('[data-show-setup]')?.addEventListener('click', () => { showMode('setup'); setMessage($('[data-setup-message]')); });
     $('[data-show-login]')?.addEventListener('click', () => { showMode('login'); setMessage($('[data-login-message]')); });
 

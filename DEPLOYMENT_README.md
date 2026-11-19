@@ -7,8 +7,8 @@ This package is the production-ready Ambassador Cre8tive website with Firebase s
 - Public responsive website pages, local fonts, and Africa-centred imagery
 - Firebase portfolio dashboard at `/admin`
 - Firebase Authentication integration for `mobolajiolakunle8@gmail.com`
-- Cloud Firestore project and case-study integration, private enquiry CRM, and newsletter-consent records
-- Public HTTPS project-image link integration (with local starter-image support)
+- Cloud Firestore projects, client-approved testimonials, editable journal notes, homepage content controls, private enquiry CRM, and newsletter-consent records
+- Public HTTPS project- and journal-image link integration (with appropriate local `assets/...` path support)
 - Firestore, Storage, and Realtime Database security rules
 - Firebase Hosting configuration, `.firebaserc`, `package.json`, and lockfile
 
@@ -49,8 +49,8 @@ If existing Firebase Storage project-image links need to stay public, deploy the
 
 ## Security notes
 
-- Public visitors can only read Firestore projects marked `published: true`.
-- Only the verified `mobolajiolakunle8@gmail.com` Firebase account can manage drafts, public project-image links, projects, private briefs, and newsletter contacts.
+- Public visitors can only read Firestore projects, testimonials, and journal notes marked `published: true`.
+- Only the verified `mobolajiolakunle8@gmail.com` Firebase account can manage drafts, public image links, projects, testimonials, journal notes, homepage content, private briefs, and newsletter contacts.
 - Realtime Database is locked by default. Cloud Storage denies writes and permits only the former public project-object path for compatibility with older image links; new portfolio images are externally linked.
 - The local Python preview server, local JSON data, Vercel API source, and environment files are intentionally excluded from Firebase Hosting output.
 - Firebase Hosting retains Firestore lead capture and the dashboard. Use the Vercel build path for Web3Forms form delivery, optional signed newsletter delivery/unsubscribe routes, and Vercel Web Analytics. If you deliberately deploy to Firebase Hosting instead, populate the public `web3forms-config.js` form identifier through your own reviewed build/release process; it is blank in source by default.

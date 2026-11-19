@@ -7,7 +7,7 @@ The public site and admin dashboard are configured to use Firebase in production
 The configuration includes:
 
 - **Firebase Authentication** — password sign-in for `mobolajiolakunle8@gmail.com`
-- **Cloud Firestore** — published projects, drafts, case-study details, verified testimonials, private project briefs, and newsletter consents
+- **Cloud Firestore** — published projects, private drafts, case-study details, client-approved testimonials, editable journal notes, homepage presentation settings, private project briefs, and newsletter consents
 - **Cloud Storage** — read-only compatibility for previously published Firebase Storage image links; new portfolio projects use public image links instead of uploads
 - **Firebase Hosting** — static public site and admin dashboard
 - **Realtime Database** — intentionally locked because this site does not use it
@@ -42,14 +42,14 @@ The repository is already linked to `website-f3cc6` through `.firebaserc`, so `f
 4. Return to `/admin`, sign in, and use **I have verified my email** if prompted.
 5. Add only completed, client-approved projects from the Portfolio workspace when they are ready to publish.
 
-Only that verified email can read drafts or create, edit, publish, and delete projects. Each project image is supplied as a public HTTPS image link (starter `assets/...` paths remain supported); the dashboard validates and previews the link before saving. It can also read private project briefs, pending creative-notes requests, and any separately verified newsletter-consent records in the dashboard. Public creative-notes requests are delivered to the studio through Web3Forms and stored only as pending records; they do not become campaign recipients automatically. The optional Vercel signed-confirmation route remains available only if a consent-based newsletter delivery service is later configured. The Firestore rules enforce this on the server; client-side checks are only convenience features.
+Only that verified email can read drafts or create, edit, publish, and delete projects, testimonials, and journal notes. Each project or journal image is supplied as a public HTTPS image link (local `assets/...` paths remain supported where appropriate); the dashboard validates project links before publishing. Ordinary content changes auto-save after a short pause and Firestore listeners synchronise them across signed-in browsers. It can also read private project briefs, pending creative-notes requests, and any separately verified newsletter-consent records in the dashboard. Public creative-notes requests are delivered to the studio through Web3Forms and stored only as pending records; they do not become campaign recipients automatically. The optional Vercel signed-confirmation route remains available only if a consent-based newsletter delivery service is later configured. The Firestore rules enforce this on the server; client-side checks are only convenience features.
 
 ## Homepage content controls
 
-The **Website copy** workspace in `/admin` stores presentation-only homepage content in the single Firestore document `siteSettings/public`. It controls the homepage hero wording, primary call to action, studio introduction, footer invitation, and public email/phone details. It never stores credentials, private lead data, or arbitrary HTML. The public site safely retains its built-in content until this document is first saved, so there is no blank-state risk during setup.
+The **Website copy** workspace in `/admin` stores presentation-only homepage content in the single Firestore document `siteSettings/public`. It controls the homepage hero, calls to action, studio introduction, social-proof heading, availability invitation, process section, footer invitation, and public email/phone details. It never stores credentials, private lead data, or arbitrary HTML. Changes auto-save and open homepage tabs receive the live update through Firestore; built-in source copy remains visible until this document is first saved.
 
 ## Deployment notes
 
 - `server.py` and `data/` are excluded from Firebase Hosting. They remain useful only for the local Arena preview/fallback development server.
 - The Realtime Database rules deny all reads and writes. The Storage rule permits only public reads of the former `/projects/{userId}/{fileName}` path so older public image links keep working; it denies all Storage writes. Do not loosen either rule without a separately reviewed feature.
-- Add genuine client quotes in the admin dashboard only with permission. Homepage testimonial cards appear automatically once a published project has a testimonial.
+- Add genuine client quotes in the **Social proof** workspace only with permission. Homepage testimonial cards appear automatically once a testimonial is explicitly published. Journal notes are likewise private drafts until explicitly published.

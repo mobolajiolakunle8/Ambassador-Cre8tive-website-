@@ -30,7 +30,7 @@ const htmlFiles = [
 const publicFiles = [
   ...htmlFiles,
   'styles.css', 'admin.css',
-  'app.js', 'posts.js', 'projects.js', 'project.js', 'admin.js', 'contact.js', 'newsletter.js', 'web3forms.js', 'integrations.js', 'site-content.js', 'unsubscribe.js', 'confirm-subscription.js',
+  'app.js', 'posts.js', 'projects.js', 'project.js', 'testimonials.js', 'admin.js', 'admin-content.js', 'contact.js', 'newsletter.js', 'web3forms.js', 'integrations.js', 'site-content.js', 'unsubscribe.js', 'confirm-subscription.js',
   'firebase-app.js', 'firebase-auth.js', 'firebase-firestore.js', 'firebase-analytics.js', 'firebase-app-check.js',
   'robots.txt',
 ];
@@ -101,10 +101,10 @@ for (const filename of htmlFiles) {
 }
 
 if (siteUrl) {
+  // Journal article IDs are generated in Firestore, so only the stable journal index belongs
+  // in the static sitemap. Published article URLs can be added by a future server-side feed.
   const routes = [
     '/', '/about', '/services', '/portfolio', '/blog', '/contact', '/privacy', '/search',
-    '/post?slug=brand-foundations-nigeria', '/post?slug=brand-viewpoint', '/post?slug=design-systems',
-    '/post?slug=first-impression', '/post?slug=brand-refresh', '/post?slug=social-templates', '/post?slug=campaign-clarity',
   ];
   const today = new Date().toISOString().slice(0, 10);
   const urls = routes.map((route) => `  <url><loc>${siteUrl}${route}</loc><lastmod>${today}</lastmod></url>`).join('\n');

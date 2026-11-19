@@ -66,9 +66,11 @@
         <nav class="admin-dashboard-nav" aria-label="Dashboard sections">
           <button class="admin-dashboard-nav__item is-active" type="button" data-dashboard-nav="overview" aria-current="page"><span>01</span><strong>Overview</strong><small>Your studio at a glance</small></button>
           <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="portfolio"><span>02</span><strong>Portfolio</strong><small>Projects and case studies</small></button>
-          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="homepage"><span>03</span><strong>Website copy</strong><small>Homepage and contact details</small></button>
-          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="enquiries"><span>04</span><strong>Lead inbox</strong><small>Project conversations</small></button>
-          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="audience"><span>05</span><strong>Audience</strong><small>Subscribers and campaigns</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="proof"><span>03</span><strong>Social proof</strong><small>Testimonials and trust</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="journal"><span>04</span><strong>Journal</strong><small>Studio notes and insights</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="homepage"><span>05</span><strong>Website copy</strong><small>Homepage and contact details</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="enquiries"><span>06</span><strong>Lead inbox</strong><small>Project conversations</small></button>
+          <button class="admin-dashboard-nav__item" type="button" data-dashboard-nav="audience"><span>07</span><strong>Audience</strong><small>Subscribers and campaigns</small></button>
         </nav>
 
         <dl class="admin-stats" aria-label="Workspace summary"><div><dt data-project-count>0</dt><dd>projects saved</dd></div><div><dt data-published-count>0</dt><dd>currently visible</dd></div><div><dt data-enquiry-count>0</dt><dd>new enquiries</dd></div><div><dt data-subscriber-count>0</dt><dd>verified subscribers</dd></div></dl>
@@ -86,6 +88,8 @@
             <article><span>New leads</span><strong data-overview-enquiries>0</strong><p>Briefs that have not yet moved into follow-up.</p></article>
             <article><span>Verified subscribers</span><strong data-overview-subscribers>0</strong><p>Confirmed people eligible for creative notes.</p></article>
             <article><span>Newsletter requests</span><strong data-overview-newsletter-requests>0</strong><p>Web3Forms inbox notifications waiting for a direct follow-up.</p></article>
+            <article><span>Public testimonials</span><strong data-overview-testimonials>0</strong><p>Approved client quotes currently visible on the homepage.</p></article>
+            <article><span>Published journal notes</span><strong data-overview-journal>0</strong><p>Live studio insights people can read and share.</p></article>
           </div>
           <div class="admin-overview-columns">
             <section class="admin-overview-card" aria-labelledby="overview-enquiries-title"><div class="admin-overview-card__heading"><div><span class="admin-kicker">Attention queue</span><h3 id="overview-enquiries-title">Newest project briefs</h3></div><button class="admin-text-button" type="button" data-dashboard-jump="enquiries">Open inbox</button></div><div data-dashboard-recent-enquiries><p class="admin-empty">Loading private project briefs…</p></div></section>
@@ -103,11 +107,11 @@
             <input type="hidden" name="id" data-project-id />
             <input type="hidden" name="storagePath" data-project-storage-path value="" />
             <div class="admin-form-grid">
-              <div class="admin-field"><label for="project-title">Project title *</label><input id="project-title" name="title" maxlength="120" required placeholder="e.g. Your client project" /></div>
+              <div class="admin-field"><label for="project-title">Project title *</label><input id="project-title" name="title" maxlength="120" placeholder="e.g. Your client project" /></div>
               <div class="admin-field"><label for="project-client">Client / project type</label><input id="project-client" name="client" maxlength="120" placeholder="e.g. Brand identity project" /></div>
               <div class="admin-field"><label for="project-category">Category *</label><select id="project-category" name="category" required><option value="identity">Brand identity</option><option value="campaign">Campaign</option><option value="digital">Digital content</option><option value="print">Print</option></select></div>
               <div class="admin-field"><label for="project-date">Project date</label><input id="project-date" name="date" type="date" /></div>
-              <div class="admin-field admin-field--full"><label for="project-image-url">Project image link *</label><input id="project-image-url" name="image" data-project-image maxlength="2048" required inputmode="url" autocomplete="url" placeholder="https://images.example.com/project-cover.jpg" /><small>Paste a public HTTPS image link. Local <code>assets/…</code> paths remain supported where appropriate; files are not uploaded to Firebase Storage.</small></div>
+              <div class="admin-field admin-field--full"><label for="project-image-url">Project image link *</label><input id="project-image-url" name="image" data-project-image maxlength="2048" inputmode="url" autocomplete="url" placeholder="https://images.example.com/project-cover.jpg" /><small>Paste a public HTTPS image link. Local <code>assets/…</code> paths remain supported where appropriate; files are not uploaded to Firebase Storage. Drafts may be saved without an image, but publishing requires one.</small></div>
               <div class="admin-field admin-field--full"><label for="project-description">Short description</label><textarea id="project-description" name="description" maxlength="650" placeholder="What did Ambassador Cre8tive create for this project?"></textarea></div>
               <div class="admin-field admin-field--full"><label for="project-challenge">The challenge</label><textarea id="project-challenge" name="challenge" maxlength="700" placeholder="What did the client or brand need this work to solve?"></textarea></div>
               <div class="admin-field admin-field--full"><label for="project-approach">Our approach</label><textarea id="project-approach" name="approach" maxlength="700" placeholder="How did Ambassador Cre8tive respond creatively and strategically?"></textarea></div>
@@ -121,8 +125,8 @@
             <figure class="admin-image-link-preview" data-image-link-preview hidden><img data-image-link-preview-image src="" alt="Selected project image preview" /><figcaption><a data-image-link-preview-anchor target="_blank" rel="noopener">Open image link ↗</a></figcaption></figure>
             <p class="admin-image-link-status" data-image-link-status aria-live="polite"></p>
 
-            <div class="admin-checks"><label><input name="featured" type="checkbox" /> Feature this project first</label><label><input name="published" type="checkbox" checked /> Publish on public portfolio</label></div>
-            <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-project>Save project <span>↗</span></button><p class="admin-message" data-project-message aria-live="polite"></p></div>
+            <div class="admin-checks"><label><input name="featured" type="checkbox" /> Feature this project first</label><label><input name="published" type="checkbox" /> Publish on public portfolio</label></div>
+            <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-project>Save now <span>↗</span></button><p class="admin-message" data-project-message aria-live="polite">Draft changes save automatically after a short pause.</p></div>
           </form>
         </section>
 
@@ -133,10 +137,60 @@
 
         </section>
 
+        <section class="admin-dashboard-view" data-dashboard-view="proof" hidden aria-labelledby="testimonials-title">
+          <section class="admin-panel" aria-labelledby="testimonials-title">
+            <div class="admin-panel__heading"><div><span class="admin-kicker">Client-approved words</span><h2 id="testimonials-title" data-testimonial-heading>Add a testimonial</h2></div><button class="admin-text-button" type="button" data-reset-testimonial hidden>New testimonial</button></div>
+            <p class="admin-panel__intro">Use only quotes you have permission to publish. Draft changes save automatically after a short pause and update across signed-in browsers.</p>
+            <form class="admin-content-form" data-testimonial-form>
+              <input type="hidden" name="id" data-testimonial-id />
+              <div class="admin-form-grid">
+                <div class="admin-field admin-field--full"><label for="testimonial-quote">Client quote</label><textarea id="testimonial-quote" name="quote" maxlength="650" placeholder="Add a genuine, approved client quote."></textarea></div>
+                <div class="admin-field"><label for="testimonial-attribution">Name or organisation</label><input id="testimonial-attribution" name="attribution" maxlength="160" placeholder="e.g. Ada, Founder at Northline" /></div>
+                <div class="admin-field"><label for="testimonial-role">Role <span>optional</span></label><input id="testimonial-role" name="role" maxlength="160" placeholder="e.g. Founder" /></div>
+                <div class="admin-field"><label for="testimonial-project">Project context <span>optional</span></label><input id="testimonial-project" name="project" maxlength="160" placeholder="e.g. Brand identity" /></div>
+                <div class="admin-field"><label for="testimonial-order">Display order</label><input id="testimonial-order" name="sortOrder" type="number" min="0" max="999" value="0" /><small>Lower numbers appear first after featured quotes.</small></div>
+              </div>
+              <div class="admin-checks"><label><input name="featured" type="checkbox" /> Feature this quote first</label><label><input name="published" type="checkbox" /> Show this quote publicly</label></div>
+              <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-testimonial>Save now <span>↗</span></button><p class="admin-message" data-testimonial-message aria-live="polite">Draft changes save automatically after a short pause.</p></div>
+            </form>
+          </section>
+          <section class="admin-panel" aria-labelledby="saved-testimonials-title">
+            <div class="admin-panel__heading"><div><span class="admin-kicker">Social proof library</span><h2 id="saved-testimonials-title">Saved testimonials</h2></div></div>
+            <div class="admin-content-list" data-testimonial-list aria-live="polite"></div>
+          </section>
+        </section>
+
+        <section class="admin-dashboard-view" data-dashboard-view="journal" hidden aria-labelledby="journal-editor-title">
+          <section class="admin-panel" aria-labelledby="journal-editor-title">
+            <div class="admin-panel__heading"><div><span class="admin-kicker">Studio publishing</span><h2 id="journal-editor-title" data-journal-heading>Write a journal note</h2></div><button class="admin-text-button" type="button" data-reset-journal hidden>New note</button></div>
+            <p class="admin-panel__intro">Write in plain text with a blank line between paragraphs. Add <code>## A heading</code> on its own line for a simple article heading. Drafts auto-save and stay synchronised across signed-in browsers; publishing requires a complete article and an approved image link.</p>
+            <form class="admin-content-form" data-journal-form>
+              <input type="hidden" name="id" data-journal-id />
+              <div class="admin-form-grid">
+                <div class="admin-field admin-field--full"><label for="journal-title">Article title</label><input id="journal-title" name="title" maxlength="160" placeholder="e.g. How to prepare for a focused design project" /></div>
+                <div class="admin-field"><label for="journal-category">Topic</label><select id="journal-category" name="category"><option value="branding">Branding</option><option value="design">Design</option><option value="growth">Growth</option><option value="studio">Studio</option></select></div>
+                <div class="admin-field"><label for="journal-date">Publish date</label><input id="journal-date" name="date" type="date" /></div>
+                <div class="admin-field"><label for="journal-read-time">Read-time label</label><input id="journal-read-time" name="readTime" maxlength="40" placeholder="e.g. 4 min read" /></div>
+                <div class="admin-field"><label for="journal-image">Cover image link</label><input id="journal-image" name="image" maxlength="2048" inputmode="url" autocomplete="url" placeholder="https://images.example.com/journal-cover.jpg" /><small>Use a public HTTPS image link or an appropriate local <code>assets/…</code> path.</small></div>
+                <div class="admin-field admin-field--full"><label for="journal-image-alt">Cover image description</label><input id="journal-image-alt" name="imageAlt" maxlength="180" placeholder="Describe the image for screen-reader users" /></div>
+                <div class="admin-field admin-field--full"><label for="journal-excerpt">Article introduction</label><textarea id="journal-excerpt" name="excerpt" maxlength="500" placeholder="A concise overview shown on the journal page and in search previews."></textarea></div>
+                <div class="admin-field admin-field--full"><label for="journal-body">Article body</label><textarea id="journal-body" name="body" maxlength="12000" placeholder="Write the article in plain text. Separate paragraphs with a blank line.&#10;&#10;## Optional section heading&#10;&#10;Continue with the next paragraph."></textarea></div>
+                <div class="admin-field admin-field--full"><label for="journal-takeaway">Closing takeaway <span>optional</span></label><textarea id="journal-takeaway" name="takeaway" maxlength="650" placeholder="A short, useful closing thought."></textarea></div>
+              </div>
+              <div class="admin-checks"><label><input name="featured" type="checkbox" /> Feature this note on the homepage</label><label><input name="published" type="checkbox" /> Publish on the public journal</label></div>
+              <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-journal>Save now <span>↗</span></button><p class="admin-message" data-journal-message aria-live="polite">Draft changes save automatically after a short pause.</p></div>
+            </form>
+          </section>
+          <section class="admin-panel" aria-labelledby="saved-journal-title">
+            <div class="admin-panel__heading"><div><span class="admin-kicker">Journal library</span><h2 id="saved-journal-title">Saved studio notes</h2></div></div>
+            <div class="admin-content-list" data-journal-list aria-live="polite"></div>
+          </section>
+        </section>
+
         <section class="admin-dashboard-view" data-dashboard-view="homepage" hidden aria-labelledby="homepage-settings-title">
           <section class="admin-panel admin-settings">
             <div class="admin-panel__heading"><div><span class="admin-kicker">Website content</span><h2 id="homepage-settings-title">Shape the homepage.</h2></div><a class="admin-text-button" href="/index.html" target="_blank" rel="noopener">Preview homepage ↗</a></div>
-            <p class="admin-panel__intro">Update the public homepage’s opening message, central call to action, studio introduction, footer invitation, and contact details. Changes are stored in Firestore and appear on a visitor refresh. The layout and brand system stay protected.</p>
+            <p class="admin-panel__intro">Update the public homepage’s opening message, calls to action, social-proof heading, availability invitation, process section, footer invitation, and contact details. Changes auto-save to Firestore after a short pause and synchronise across signed-in browsers and open public pages. The layout and brand system stay protected.</p>
             <form class="admin-site-settings-form" data-site-settings-form>
               <div class="admin-form-grid">
                 <div class="admin-field"><label for="settings-hero-line-one">Hero line one *</label><input id="settings-hero-line-one" name="heroLineOne" maxlength="80" required /></div>
@@ -153,8 +207,27 @@
                 <div class="admin-field"><label for="settings-footer-highlight">Footer highlight</label><input id="settings-footer-highlight" name="footerHighlight" maxlength="80" /></div>
                 <div class="admin-field"><label for="settings-contact-email">Public contact email *</label><input id="settings-contact-email" name="contactEmail" type="email" maxlength="254" required /></div>
                 <div class="admin-field"><label for="settings-contact-phone">Public phone number *</label><input id="settings-contact-phone" name="contactPhone" maxlength="40" required /></div>
+                <div class="admin-field"><label for="settings-testimonials-kicker">Social-proof label</label><input id="settings-testimonials-kicker" name="testimonialsKicker" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-testimonials-title">Social-proof heading</label><input id="settings-testimonials-title" name="testimonialsTitle" maxlength="160" /></div>
+                <div class="admin-field"><label for="settings-availability-kicker">Availability label</label><input id="settings-availability-kicker" name="availabilityKicker" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-availability-title">Availability heading</label><input id="settings-availability-title" name="availabilityTitle" maxlength="160" /></div>
+                <div class="admin-field admin-field--full"><label for="settings-availability-copy">Availability message</label><textarea id="settings-availability-copy" name="availabilityCopy" maxlength="650"></textarea></div>
+                <div class="admin-field"><label for="settings-availability-status">Availability status</label><input id="settings-availability-status" name="availabilityStatus" maxlength="160" placeholder="e.g. Currently accepting selected projects" /></div>
+                <div class="admin-field"><label for="settings-availability-cta-label">Availability CTA label</label><input id="settings-availability-cta-label" name="availabilityCtaLabel" maxlength="60" /></div>
+                <div class="admin-field admin-field--full"><label for="settings-availability-cta-href">Availability CTA link</label><input id="settings-availability-cta-href" name="availabilityCtaHref" maxlength="500" placeholder="contact.html?topic=Discovery%20call" /><small>Use a local page such as <code>contact.html</code> or a public HTTPS URL.</small></div>
+                <div class="admin-field"><label for="settings-process-kicker">Process label</label><input id="settings-process-kicker" name="processKicker" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-process-title">Process heading</label><input id="settings-process-title" name="processTitle" maxlength="160" /></div>
+                <div class="admin-field admin-field--full"><label for="settings-process-intro">Process introduction</label><textarea id="settings-process-intro" name="processIntro" maxlength="650"></textarea></div>
+                <div class="admin-field"><label for="settings-process-step-1-title">Step 1 title</label><input id="settings-process-step-1-title" name="processStep1Title" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-process-step-1-copy">Step 1 description</label><textarea id="settings-process-step-1-copy" name="processStep1Copy" maxlength="380"></textarea></div>
+                <div class="admin-field"><label for="settings-process-step-2-title">Step 2 title</label><input id="settings-process-step-2-title" name="processStep2Title" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-process-step-2-copy">Step 2 description</label><textarea id="settings-process-step-2-copy" name="processStep2Copy" maxlength="380"></textarea></div>
+                <div class="admin-field"><label for="settings-process-step-3-title">Step 3 title</label><input id="settings-process-step-3-title" name="processStep3Title" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-process-step-3-copy">Step 3 description</label><textarea id="settings-process-step-3-copy" name="processStep3Copy" maxlength="380"></textarea></div>
+                <div class="admin-field"><label for="settings-process-step-4-title">Step 4 title</label><input id="settings-process-step-4-title" name="processStep4Title" maxlength="80" /></div>
+                <div class="admin-field"><label for="settings-process-step-4-copy">Step 4 description</label><textarea id="settings-process-step-4-copy" name="processStep4Copy" maxlength="380"></textarea></div>
               </div>
-              <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-site-settings>Save homepage content <span>↗</span></button><p class="admin-message" data-site-settings-message aria-live="polite"></p></div>
+              <div class="admin-form-actions"><button class="admin-primary" type="submit" data-save-site-settings>Save now <span>↗</span></button><p class="admin-message" data-site-settings-message aria-live="polite">Changes auto-save after a short pause.</p></div>
             </form>
           </section>
         </section>
@@ -200,5 +273,6 @@
     </section>
   </main>
   <script src="/admin.js"></script>
+  <script src="/admin-content.js"></script>
 </body>
 </html>

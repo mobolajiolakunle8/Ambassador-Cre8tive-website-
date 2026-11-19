@@ -22,13 +22,14 @@ service cloud.firestore {
       return status in ['new', 'contacted', 'proposal', 'won', 'closed'];
     }
 
-    function validProjectImage(value) {
-      // Project media is either an existing bundled starter image or a public HTTPS link.
-      // Firebase Storage uploads are intentionally not used by this portfolio workflow.
+    function validLinkedImage(value, allowBlank) {
+      // Media remains link-only: a bundled local asset or a public HTTPS location.
+      // Firebase Storage uploads are intentionally not used by this workflow.
       return validText(value, 2048)
         && (
-          value.matches('^assets/([A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+\\.(avif|gif|jpe?g|png|webp|svg)$')
-          || value.matches('^https://[^\\s@]+$')
+          (allowBlank && value == '')
+          || value.matches('^assets/([A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+[.](avif|gif|jpe?g|png|webp|svg)$')
+          || value.matches('^https://[^ @]+$')
         );
     }
 
@@ -56,8 +57,8 @@ service cloud.firestore {
         && validText(request.resource.data.outcome, 700)
         && validText(request.resource.data.testimonial, 650)
         && validText(request.resource.data.testimonialAttribution, 160)
-        && validProjectImage(request.resource.data.image)
-        // Kept as an empty legacy field so earlier project documents remain schema-compatible.
+        // Private drafts can begin without a cover image. Public work always needs one.
+        && validLinkedImage(request.resource.data.image, !request.resource.data.published)
         && request.resource.data.storagePath == ''
         && validText(request.resource.data.imageAlt, 180)
         && validText(request.resource.data.date, 20)
@@ -67,7 +68,7 @@ service cloud.firestore {
         && request.resource.data.updatedAt is timestamp;
     }
 
-    function publicEnquiryFields() {
+    function validPublicEnquiry() {
       return request.resource.data.keys().hasOnly([
           'name', 'email', 'business', 'businessType', 'service', 'timeline', 'budget',
           'website', 'message', 'project', 'status', 'source', 'createdAt', 'updatedAt'
@@ -75,11 +76,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll([
           'name', 'email', 'business', 'businessType', 'service', 'timeline', 'budget',
           'website', 'message', 'project', 'status', 'source', 'createdAt', 'updatedAt'
-        ]);
-    }
-
-    function validPublicEnquiry() {
-      return publicEnquiryFields()
+        ])
         && validText(request.resource.data.name, 120)
         && validText(request.resource.data.email, 254)
         && validText(request.resource.data.business, 160)
@@ -140,12 +137,22 @@ service cloud.firestore {
       return request.resource.data.keys().hasOnly([
           'heroLineOne', 'heroHighlightOne', 'heroLineTwo', 'heroHighlightTwo', 'heroIntro',
           'heroCtaLabel', 'heroCtaHref', 'aboutCopy', 'footerKicker', 'footerLineOne',
-          'footerLineTwo', 'footerHighlight', 'contactEmail', 'contactPhone', 'updatedAt'
+          'footerLineTwo', 'footerHighlight', 'contactEmail', 'contactPhone',
+          'testimonialsKicker', 'testimonialsTitle', 'availabilityKicker', 'availabilityTitle',
+          'availabilityCopy', 'availabilityStatus', 'availabilityCtaLabel', 'availabilityCtaHref',
+          'processKicker', 'processTitle', 'processIntro', 'processStep1Title', 'processStep1Copy',
+          'processStep2Title', 'processStep2Copy', 'processStep3Title', 'processStep3Copy',
+          'processStep4Title', 'processStep4Copy', 'updatedAt'
         ])
         && request.resource.data.keys().hasAll([
           'heroLineOne', 'heroHighlightOne', 'heroLineTwo', 'heroHighlightTwo', 'heroIntro',
           'heroCtaLabel', 'heroCtaHref', 'aboutCopy', 'footerKicker', 'footerLineOne',
-          'footerLineTwo', 'footerHighlight', 'contactEmail', 'contactPhone', 'updatedAt'
+          'footerLineTwo', 'footerHighlight', 'contactEmail', 'contactPhone',
+          'testimonialsKicker', 'testimonialsTitle', 'availabilityKicker', 'availabilityTitle',
+          'availabilityCopy', 'availabilityStatus', 'availabilityCtaLabel', 'availabilityCtaHref',
+          'processKicker', 'processTitle', 'processIntro', 'processStep1Title', 'processStep1Copy',
+          'processStep2Title', 'processStep2Copy', 'processStep3Title', 'processStep3Copy',
+          'processStep4Title', 'processStep4Copy', 'updatedAt'
         ])
         && validText(request.resource.data.heroLineOne, 80)
         && validText(request.resource.data.heroHighlightOne, 80)
@@ -161,12 +168,92 @@ service cloud.firestore {
         && validText(request.resource.data.footerHighlight, 80)
         && validText(request.resource.data.contactEmail, 254)
         && validText(request.resource.data.contactPhone, 40)
+        && validText(request.resource.data.testimonialsKicker, 80)
+        && validText(request.resource.data.testimonialsTitle, 160)
+        && validText(request.resource.data.availabilityKicker, 80)
+        && validText(request.resource.data.availabilityTitle, 160)
+        && validText(request.resource.data.availabilityCopy, 650)
+        && validText(request.resource.data.availabilityStatus, 160)
+        && validText(request.resource.data.availabilityCtaLabel, 60)
+        && validText(request.resource.data.availabilityCtaHref, 500)
+        && validText(request.resource.data.processKicker, 80)
+        && validText(request.resource.data.processTitle, 160)
+        && validText(request.resource.data.processIntro, 650)
+        && validText(request.resource.data.processStep1Title, 80)
+        && validText(request.resource.data.processStep1Copy, 380)
+        && validText(request.resource.data.processStep2Title, 80)
+        && validText(request.resource.data.processStep2Copy, 380)
+        && validText(request.resource.data.processStep3Title, 80)
+        && validText(request.resource.data.processStep3Copy, 380)
+        && validText(request.resource.data.processStep4Title, 80)
+        && validText(request.resource.data.processStep4Copy, 380)
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function validTestimonial(testimonialId) {
+      return request.resource.data.keys().hasOnly([
+          'id', 'quote', 'attribution', 'role', 'project', 'sortOrder', 'featured', 'published', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'id', 'quote', 'attribution', 'role', 'project', 'sortOrder', 'featured', 'published', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.id == testimonialId
+        && validText(request.resource.data.id, 120)
+        && validText(request.resource.data.quote, 650)
+        && validText(request.resource.data.attribution, 160)
+        && validText(request.resource.data.role, 160)
+        && validText(request.resource.data.project, 160)
+        && request.resource.data.sortOrder is int
+        && request.resource.data.sortOrder >= 0
+        && request.resource.data.sortOrder <= 999
+        && request.resource.data.featured is bool
+        && request.resource.data.published is bool
+        && (!request.resource.data.published || (request.resource.data.quote.size() > 0 && request.resource.data.attribution.size() > 0))
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function validJournalDate(value, published) {
+      return validText(value, 10)
+        && ((value == '' && !published) || value.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'));
+    }
+
+    function validJournalPost(postId) {
+      return request.resource.data.keys().hasOnly([
+          'id', 'title', 'category', 'date', 'readTime', 'image', 'imageAlt', 'excerpt', 'body', 'takeaway',
+          'featured', 'published', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'id', 'title', 'category', 'date', 'readTime', 'image', 'imageAlt', 'excerpt', 'body', 'takeaway',
+          'featured', 'published', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.id == postId
+        && validText(request.resource.data.id, 120)
+        && validText(request.resource.data.title, 160)
+        && request.resource.data.category in ['branding', 'design', 'growth', 'studio']
+        && validJournalDate(request.resource.data.date, request.resource.data.published)
+        && validText(request.resource.data.readTime, 40)
+        && validLinkedImage(request.resource.data.image, !request.resource.data.published)
+        && validText(request.resource.data.imageAlt, 180)
+        && validText(request.resource.data.excerpt, 500)
+        && validText(request.resource.data.body, 12000)
+        && validText(request.resource.data.takeaway, 650)
+        && request.resource.data.featured is bool
+        && request.resource.data.published is bool
+        && (!request.resource.data.published || (
+          request.resource.data.title.size() > 0
+          && request.resource.data.excerpt.size() > 0
+          && request.resource.data.body.size() > 0
+          && request.resource.data.image.size() > 0
+          && request.resource.data.date.size() > 0
+        ))
+        && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
     }
 
     match /siteSettings/{settingId} {
       // This one public document holds presentation-only content. It intentionally excludes
-      // credentials, private workflow data, and any arbitrary HTML from the public website.
+      // credentials, private workflow data, and arbitrary HTML from the public website.
       allow get: if settingId == 'public';
       allow list: if false;
       allow create, update: if isAdmin() && settingId == 'public' && validPublicSiteSettings();
@@ -181,6 +268,28 @@ service cloud.firestore {
         && request.resource.data.id == resource.data.id
         && request.resource.data.createdAt == resource.data.createdAt
         && validProject(projectId);
+      allow delete: if isAdmin();
+    }
+
+    match /testimonials/{testimonialId} {
+      // Only published, client-approved quotes can be read by public pages.
+      allow get, list: if resource.data.published == true || isAdmin();
+      allow create: if isAdmin() && validTestimonial(testimonialId);
+      allow update: if isAdmin()
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.createdAt == resource.data.createdAt
+        && validTestimonial(testimonialId);
+      allow delete: if isAdmin();
+    }
+
+    match /journalPosts/{postId} {
+      // Journal text is plain content only; public readers receive published articles only.
+      allow get, list: if resource.data.published == true || isAdmin();
+      allow create: if isAdmin() && validJournalPost(postId);
+      allow update: if isAdmin()
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.createdAt == resource.data.createdAt
+        && validJournalPost(postId);
       allow delete: if isAdmin();
     }
 

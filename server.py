@@ -38,7 +38,7 @@ SESSION_SECONDS = 60 * 60 * 12
 ALLOWED_CATEGORIES = {"identity", "campaign", "digital", "print"}
 PUBLIC_ROOT_FILES = {
     "index.html", "about.html", "services.html", "portfolio.html", "project.html", "blog.html", "post.html", "contact.html", "search.html", "privacy.html", "admin.html", "unsubscribe.html", "confirm-subscription.html", "robots.txt",
-    "styles.css", "app.js", "posts.js", "projects.js", "project.js", "firebase-config.js", "firebase-app.js", "firebase-auth.js", "firebase-firestore.js", "firebase-analytics.js", "firebase-app-check.js", "web3forms-config.js", "web3forms.js", "admin.css", "admin.js", "contact.js", "newsletter.js", "integrations.js", "site-content.js", "unsubscribe.js", "confirm-subscription.js",
+    "styles.css", "app.js", "posts.js", "projects.js", "project.js", "testimonials.js", "firebase-config.js", "firebase-app.js", "firebase-auth.js", "firebase-firestore.js", "firebase-analytics.js", "firebase-app-check.js", "web3forms-config.js", "web3forms.js", "admin.css", "admin.js", "admin-content.js", "contact.js", "newsletter.js", "integrations.js", "site-content.js", "unsubscribe.js", "confirm-subscription.js",
 }
 PUBLIC_ASSET_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".ico", ".ttf", ".woff", ".woff2", ".mp3", ".mp4", ".pdf"}
 
@@ -134,7 +134,7 @@ def normalise_image_url(value: Any) -> str:
     image = clean_text(value, 1000)
     if not image:
         return ""
-    # Existing starter images stay valid locally. New project media must use public HTTPS.
+    # Approved local asset paths remain valid locally. New project media can also use public HTTPS links.
     if image.startswith("assets/"):
         relative = Path(image)
         image_suffixes = {".avif", ".gif", ".jpg", ".jpeg", ".png", ".svg", ".webp"}

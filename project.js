@@ -11,10 +11,10 @@
   const requestedId = String(query.get('id') || '').trim();
   const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&quot;' })[char]);
   const categoryLabel = (category) => ({ identity: 'Brand identity', campaign: 'Campaign', digital: 'Digital content', print: 'Print' }[category] || 'Creative work');
-  const isStarterAssetImage = (value = '') => /^assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.(?:avif|gif|jpe?g|png|webp|svg)$/i.test(String(value));
+  const isLocalAssetImage = (value = '') => /^assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.(?:avif|gif|jpe?g|png|webp|svg)$/i.test(String(value));
   const safeProjectImageUrl = (value = '') => {
     const raw = String(value).trim();
-    if (isStarterAssetImage(raw)) return raw;
+    if (isLocalAssetImage(raw)) return raw;
     try {
       const url = new URL(raw);
       return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url.toString() : '';

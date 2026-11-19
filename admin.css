@@ -211,3 +211,26 @@ a { color: inherit; text-decoration: none; }
   .admin-overview-card__heading { align-items: flex-start; flex-direction: column; }
   .admin-overview-item { align-items: flex-start; }
 }
+
+/* Auto-save content workspaces */
+.admin-content-form textarea[name="body"] { min-height: 275px; font-family: inherit; line-height: 1.6; }
+.admin-content-list { display: grid; gap: 11px; }
+.admin-content-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 18px; border: 1px solid var(--admin-line); background: #fbfcf8; }
+.admin-content-row__copy { min-width: 0; }
+.admin-content-row__copy small { display: block; margin-bottom: 5px; color: #717c7b; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.admin-content-row__copy h3 { overflow: hidden; margin: 0 0 6px; font-size: 20px; font-weight: 600; line-height: 1.14; letter-spacing: -.045em; text-overflow: ellipsis; white-space: nowrap; }
+.admin-content-row__copy p { display: -webkit-box; max-width: 650px; margin: 0; overflow: hidden; color: #687271; font-size: 12px; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.admin-content-row__meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.admin-content-row__meta span { padding: 3px 6px; color: #657400; background: #ecf6c8; font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.admin-content-row__meta span.is-draft { color: #687271; background: #e4e8e6; }
+.admin-content-row__actions { display: flex; gap: 7px; }
+.admin-content-row__actions button { min-width: 62px; padding: 8px 10px; cursor: pointer; color: var(--admin-ink); border: 1px solid var(--admin-line); background: transparent; font-size: 12px; font-weight: 700; }
+.admin-content-row__actions button:hover { border-color: var(--admin-lime); background: var(--admin-lime); }
+.admin-content-row__actions .is-delete:hover { color: #fff; border-color: var(--admin-danger); background: var(--admin-danger); }
+.admin-autosave-note { margin: -7px 0 20px; color: #71807a; font-size: 12px; line-height: 1.5; }
+
+@media (max-width: 620px) {
+  .admin-content-row { grid-template-columns: 1fr; gap: 13px; padding: 15px; }
+  .admin-content-row__actions button { flex: 1; }
+  .admin-content-row__copy h3 { white-space: normal; }
+}
