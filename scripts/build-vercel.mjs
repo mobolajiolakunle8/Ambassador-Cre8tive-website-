@@ -30,7 +30,7 @@ const htmlFiles = [
 const publicFiles = [
   ...htmlFiles,
   'styles.css', 'admin.css',
-  'app.js', 'posts.js', 'projects.js', 'project.js', 'admin.js', 'contact.js', 'newsletter.js', 'integrations.js', 'site-content.js', 'unsubscribe.js', 'confirm-subscription.js',
+  'app.js', 'posts.js', 'projects.js', 'project.js', 'admin.js', 'contact.js', 'newsletter.js', 'web3forms.js', 'integrations.js', 'site-content.js', 'unsubscribe.js', 'confirm-subscription.js',
   'robots.txt',
 ];
 
@@ -74,6 +74,13 @@ for (const key of [...required, ...optionalPublic]) {
   firebaseConfig = firebaseConfig.replaceAll(token, JSON.stringify(value));
 }
 await writeFile(path.join(output, 'firebase-config.js'), firebaseConfig, 'utf8');
+
+// Web3Forms access keys are intentionally browser-visible form identifiers. Keep this separate
+// from server credentials and generate it only into the static output from Vercel configuration.
+const web3formsAccessKey = String(env.WEB3FORMS_ACCESS_KEY || '').trim();
+let web3formsConfig = await readFile(path.join(root, 'web3forms-config.template.js'), 'utf8');
+web3formsConfig = web3formsConfig.replace('__WEB3FORMS_ACCESS_KEY__', JSON.stringify(web3formsAccessKey));
+await writeFile(path.join(output, 'web3forms-config.js'), web3formsConfig, 'utf8');
 
 const siteUrl = String(env.PUBLIC_SITE_URL || '').trim().replace(/\/$/, '');
 const verification = String(env.GOOGLE_SITE_VERIFICATION || '').trim();

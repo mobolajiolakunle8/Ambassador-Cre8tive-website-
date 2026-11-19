@@ -38,10 +38,55 @@
     window.location.href = `mailto:mobolajiolakunle8@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`${details}\n\nProject details:\n${payload.message}`)}`;
   };
 
+  // Firestore remains a private CRM copy for the verified admin. Form delivery does not wait
+  // for it, so a visitor can still reach the studio through Web3Forms if Firebase is unavailable.
   const firebaseRuntime = Promise.all([
     import('./firebase-config.js'),
     import('https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js'),
-  ]).then(([config, firestore]) => ({ config, firestore }));
+  ]).then(([config, firestore]) => ({ config, firestore })).catch(() => null);
+
+  const captureLead = async (payload) => {
+    const runtime = await firebaseRuntime;
+    if (!runtime) return null;
+    const { config, firestore } = runtime;
+    try {
+      const reference = await firestore.addDoc(firestore.collection(config.db, 'enquiries'), {
+        name: payload.name,
+        email: payload.email,
+        business: payload.business,
+        businessType: payload.businessType,
+        service: payload.service,
+        timeline: payload.timeline,
+        budget: payload.budget,
+        website: payload.website,
+        message: payload.message,
+        project: payload.project,
+        status: 'new',
+        source: 'website',
+        createdAt: firestore.serverTimestamp(),
+        updatedAt: firestore.serverTimestamp(),
+      });
+      config.trackEvent('generate_lead', { service: payload.service || 'not_specified', project: payload.project || 'general' });
+      return reference;
+    } catch {
+      return null;
+    }
+  };
+
+  const web3FormsPayload = (payload) => {
+    const data = new FormData();
+    data.set('name', payload.name);
+    data.set('email', payload.email);
+    if (payload.business) data.set('business', payload.business);
+    if (payload.businessType) data.set('business_type', payload.businessType);
+    if (payload.service) data.set('service', payload.service);
+    if (payload.timeline) data.set('ideal_timeline', payload.timeline);
+    if (payload.budget) data.set('project_budget', payload.budget);
+    if (payload.website) data.set('website_or_reference', payload.website);
+    if (payload.project) data.set('related_project', payload.project);
+    data.set('message', payload.message);
+    return data;
+  };
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -72,40 +117,34 @@
     }
 
     const submit = form.querySelector('button[type="submit"]');
+    const originalMarkup = submit.innerHTML;
     submit.disabled = true;
-    setStatus('Saving your project brief…');
+    submit.textContent = 'Sending…';
+    setStatus('Sending your project brief…');
     try {
-      const { config, firestore } = await firebaseRuntime;
-      const reference = await firestore.addDoc(firestore.collection(config.db, 'enquiries'), {
-        name: payload.name,
-        email: payload.email,
-        business: payload.business,
-        businessType: payload.businessType,
-        service: payload.service,
-        timeline: payload.timeline,
-        budget: payload.budget,
-        website: payload.website,
-        message: payload.message,
-        project: payload.project,
-        status: 'new',
-        source: 'website',
-        createdAt: firestore.serverTimestamp(),
-        updatedAt: firestore.serverTimestamp(),
+      const web3forms = window.AmbassadorWeb3Forms;
+      if (!web3forms?.isConfigured?.()) throw new Error('The website form delivery service is not configured yet.');
+      await web3forms.submit({
+        formData: web3FormsPayload(payload),
+        subject: `New Ambassador Cre8tive enquiry — ${payload.name}`,
+        formName: 'Project enquiry',
+        replyTo: payload.email,
       });
-
-      // Resend notification is optional. Firestore capture remains the source of truth.
-      fetch('/api/enquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...payload, enquiryId: reference.id }),
-      }).catch(() => {});
-      config.trackEvent('generate_lead', { service: payload.service || 'not_specified', project: payload.project || 'general' });
-      setStatus('Thank you — your brief has been received. Ambassador Cre8tive will be in touch soon.');
+      // Do not block the visitor’s success state on the optional private CRM mirror.
+      void captureLead(payload);
+      setStatus('Thank you — your brief has been sent. Ambassador Cre8tive will be in touch soon.');
       form.reset();
-    } catch {
-      setStatus('We could not save the form right now. Your email app is opening with the brief pre-filled.', true);
+    } catch (error) {
+      const unavailable = /not configured/i.test(error?.message || '');
+      setStatus(
+        unavailable
+          ? 'This form is not configured for online delivery yet. Your email app is opening with the brief pre-filled.'
+          : 'We could not send the form right now. Your email app is opening with the brief pre-filled.',
+        true,
+      );
       fallbackMailto(payload);
     } finally {
+      submit.innerHTML = originalMarkup;
       submit.disabled = false;
     }
   });

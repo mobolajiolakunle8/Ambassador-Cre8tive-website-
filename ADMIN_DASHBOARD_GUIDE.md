@@ -4,11 +4,11 @@ Open `/admin` and sign in with the approved, verified Firebase administrator acc
 
 ## Workspaces
 
-- **Overview** — live counts for published work, new project briefs, confirmed newsletter contacts, and the most recent activity.
+- **Overview** — live counts for published work, new project briefs, pending creative-notes requests, confirmed newsletter contacts, and the most recent activity.
 - **Portfolio** — import the starter work once; add, edit, publish, feature, or remove projects. Images remain link-only: use `assets/...` starter paths or public HTTPS image URLs.
 - **Website copy** — manage the homepage hero, main call to action, studio introduction, footer invitation, public email, and public phone number. These values are stored in `siteSettings/public` and shown on the homepage after a refresh.
 - **Lead inbox** — read private project briefs, move them through New, Contacted, Proposal, Won, and Closed, and add private follow-up notes.
-- **Audience** — review only confirmed newsletter contacts and send a consent-based campaign through the secure newsletter route.
+- **Audience** — review pending creative-notes requests that are also delivered to the Web3Forms inbox, separately from confirmed newsletter contacts. Pending requests are not campaign recipients; the secure campaign route remains for a later consent-verified mailing workflow.
 
 ## Safeguards
 

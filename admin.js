@@ -48,6 +48,7 @@
   const seedButton = $('[data-seed-projects]');
   const enquiryList = $('[data-enquiry-list]');
   const subscriberList = $('[data-subscriber-list]');
+  const newsletterRequestList = $('[data-newsletter-request-list]');
   const newsletterCampaignForm = $('[data-newsletter-campaign-form]');
   const siteSettingsForm = $('[data-site-settings-form]');
   const dashboardViews = [...document.querySelectorAll('[data-dashboard-view]')];
@@ -61,6 +62,7 @@
   let projects = [];
   let enquiries = [];
   let subscribers = [];
+  let newsletterRequests = [];
   let unsubscribeProjects = null;
   let unsubscribeEnquiries = null;
   let unsubscribeSubscribers = null;
@@ -146,6 +148,7 @@
     setCount('[data-overview-published]', projects.filter((project) => project.published).length);
     setCount('[data-overview-enquiries]', enquiries.filter((enquiry) => enquiry.status === 'new').length);
     setCount('[data-overview-subscribers]', subscribers.length);
+    setCount('[data-overview-newsletter-requests]', newsletterRequests.length);
 
     const enquiryRoot = $('[data-dashboard-recent-enquiries]');
     if (enquiryRoot) {
@@ -356,11 +359,26 @@
       }).join('');
   };
 
+  const renderNewsletterRequests = () => {
+    if (!newsletterRequestList) return;
+    if (!newsletterRequests.length) {
+      newsletterRequestList.innerHTML = '<p class="admin-empty">No creative-notes requests have arrived yet.</p>';
+      return;
+    }
+    newsletterRequestList.innerHTML = [...newsletterRequests]
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+      .map((request) => {
+        const email = isEmail(request.email) ? String(request.email).trim() : '';
+        return `<article class="admin-subscriber-row">${email ? `<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>` : '<span>Invalid email record</span>'}<small>Requested ${escapeHtml(timestampLabel(request.createdAt))} · awaiting a direct follow-up</small></article>`;
+      })
+      .join('');
+  };
+
   const renderSubscribers = () => {
     updateStats();
     if (!subscriberList) return;
     if (!subscribers.length) {
-      subscriberList.innerHTML = '<p class="admin-empty">No newsletter contacts have opted in yet.</p>';
+      subscriberList.innerHTML = '<p class="admin-empty">No consent-verified newsletter contacts are available.</p>';
       return;
     }
     subscriberList.innerHTML = [...subscribers]
@@ -382,12 +400,20 @@
   };
 
   const subscribeToSubscribers = () => {
-    if (!firebase || !firestore || unsubscribeSubscribers || !subscriberList) return;
-    subscriberList.innerHTML = '<p class="admin-empty">Loading subscribed contacts…</p>';
+    if (!firebase || !firestore || unsubscribeSubscribers || (!subscriberList && !newsletterRequestList)) return;
+    if (subscriberList) subscriberList.innerHTML = '<p class="admin-empty">Loading consent-verified contacts…</p>';
+    if (newsletterRequestList) newsletterRequestList.innerHTML = '<p class="admin-empty">Loading creative-notes requests…</p>';
     unsubscribeSubscribers = firestore.onSnapshot(firestore.collection(firebase.db, 'subscribers'), (snapshot) => {
-      subscribers = snapshot.docs.map((item) => ({ ...item.data(), id: item.id })).filter((subscriber) => subscriber.status === 'subscribed');
+      const records = snapshot.docs.map((item) => ({ ...item.data(), id: item.id }));
+      subscribers = records.filter((subscriber) => subscriber.status === 'subscribed');
+      newsletterRequests = records.filter((subscriber) => subscriber.status === 'pending');
+      renderNewsletterRequests();
       renderSubscribers();
-    }, (error) => { subscriberList.innerHTML = `<p class="admin-empty">${escapeHtml(authErrorMessage(error))}</p>`; });
+    }, (error) => {
+      const message = `<p class="admin-empty">${escapeHtml(authErrorMessage(error))}</p>`;
+      if (subscriberList) subscriberList.innerHTML = message;
+      if (newsletterRequestList) newsletterRequestList.innerHTML = message;
+    });
   };
 
   const stopLeadSubscriptions = () => {
@@ -397,6 +423,7 @@
     unsubscribeSubscribers = null;
     enquiries = [];
     subscribers = [];
+    newsletterRequests = [];
     updateStats();
   };
 
@@ -776,6 +803,7 @@
     });
     $('[data-refresh-subscribers]')?.addEventListener('click', () => {
       if (!unsubscribeSubscribers) subscribeToSubscribers();
+      renderNewsletterRequests();
       renderSubscribers();
     });
     enquiryList?.addEventListener('click', (event) => {

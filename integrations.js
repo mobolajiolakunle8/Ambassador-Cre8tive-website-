@@ -10,9 +10,6 @@
   firebaseRuntime.then((config) => {
     const bookingUrl = String(config.BOOKING_URL || '').trim();
     const whatsappNumber = normalizeWhatsapp(config.WHATSAPP_NUMBER);
-    // Bethel is deliberately a link-only integration until its public URL or API contract
-    // is supplied. This prevents an assumed endpoint or credential from being published.
-    const bethelAppUrl = String(config.BETHEL_APP_URL || '').trim();
     const businessUrl = String(config.GOOGLE_BUSINESS_PROFILE_URL || '').trim();
 
     if (config.VERCEL_ANALYTICS_ENABLED) {
@@ -45,15 +42,6 @@
         link.rel = 'noopener';
         link.hidden = false;
         link.addEventListener('click', () => config.trackEvent('contact', { method: 'whatsapp' }));
-      });
-    }
-    if (bethelAppUrl && isHttpUrl(bethelAppUrl)) {
-      document.querySelectorAll('[data-bethel-app-link]').forEach((link) => {
-        link.href = bethelAppUrl;
-        link.target = '_blank';
-        link.rel = 'noopener';
-        link.hidden = false;
-        link.addEventListener('click', () => config.trackEvent('select_content', { content_type: 'partner_app', item_id: 'bethel' }));
       });
     }
     if (businessUrl && isHttpUrl(businessUrl)) {

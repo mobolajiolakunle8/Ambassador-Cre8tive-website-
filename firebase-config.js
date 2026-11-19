@@ -17,8 +17,6 @@ export const firebaseConfig = {
 export const ADMIN_EMAIL = 'mobolajiolakunle8@gmail.com';
 export const BOOKING_URL = '';
 export const WHATSAPP_NUMBER = '2349030192034';
-// Optional public Bethel web/universal-link destination. Keep blank until its documented URL is known.
-export const BETHEL_APP_URL = '';
 export const PUBLIC_SITE_URL = '';
 export const GOOGLE_BUSINESS_PROFILE_URL = '';
 export const GOOGLE_SITE_VERIFICATION = '';

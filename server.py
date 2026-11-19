@@ -38,7 +38,7 @@ SESSION_SECONDS = 60 * 60 * 12
 ALLOWED_CATEGORIES = {"identity", "campaign", "digital", "print"}
 PUBLIC_ROOT_FILES = {
     "index.html", "about.html", "services.html", "portfolio.html", "project.html", "blog.html", "post.html", "contact.html", "search.html", "privacy.html", "admin.html", "unsubscribe.html", "confirm-subscription.html", "robots.txt",
-    "styles.css", "app.js", "posts.js", "projects.js", "project.js", "firebase-config.js", "admin.css", "admin.js", "contact.js", "newsletter.js", "integrations.js", "site-content.js", "unsubscribe.js", "confirm-subscription.js",
+    "styles.css", "app.js", "posts.js", "projects.js", "project.js", "firebase-config.js", "web3forms-config.js", "web3forms.js", "admin.css", "admin.js", "contact.js", "newsletter.js", "integrations.js", "site-content.js", "unsubscribe.js", "confirm-subscription.js",
 }
 PUBLIC_ASSET_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".ico", ".ttf", ".woff", ".woff2", ".mp3", ".mp4", ".pdf"}
 

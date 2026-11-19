@@ -27,7 +27,7 @@ This site keeps public portfolio content and private lead data in Firebase proje
 
 4. **Vercel environment values**
    - Add every value from `.env.production` to Vercel Project Settings → Environment Variables.
-   - `FIREBASE_*`, `BOOKING_URL`, `WHATSAPP_NUMBER`, `PUBLIC_SITE_URL`, Google verification, App Check site key, and analytics flag are public build-time values.
+   - `FIREBASE_*`, `BOOKING_URL`, `WHATSAPP_NUMBER`, `PUBLIC_SITE_URL`, Google verification, App Check site key, analytics flag, and `WEB3FORMS_ACCESS_KEY` are public build-time values. The Web3Forms value is a browser-visible form identifier by design; never substitute a private Web3Forms dashboard API key.
    - Never enter `FIREBASE_SERVICE_ACCOUNT_JSON`, `RESEND_API_KEY`, `CRON_SECRET`, or `NEWSLETTER_UNSUBSCRIBE_SECRET` into browser JavaScript, Git, or public static output.
    - `.vercelignore` blocks all `.env` files from deployment upload; Vercel’s encrypted environment settings are the production source for secrets.
    - Create a least-privilege Firebase service account only for the Vercel server functions, place its one-line JSON in `FIREBASE_SERVICE_ACCOUNT_JSON`, and rotate it if it is ever exposed. Never add this JSON to any downloadable public site asset.
@@ -40,21 +40,16 @@ This site keeps public portfolio content and private lead data in Firebase proje
 
 ## Lead workflow
 
-- A project brief is written directly to Firestore as `enquiries/{id}`.
-- The public website can create an enquiry but cannot read it. The verified admin dashboard can move it through **New → Contacted → Proposal → Won / Closed** and store private internal notes.
-- A hidden honeypot filters simple automated form submissions. It is not a replacement for monitoring, App Check, or server-side anti-abuse controls.
-- The user gets an email-client fallback if Firestore is temporarily unavailable.
+- A project brief is delivered directly to the Ambassador Cre8tive inbox through Web3Forms. After a successful delivery, the browser also attempts to keep a private CRM copy in Firestore as `enquiries/{id}`.
+- The public website can create an enquiry but cannot read it. The verified admin dashboard can move a saved CRM copy through **New → Contacted → Proposal → Won / Closed** and store private internal notes.
+- A hidden honeypot filters simple automated form submissions. It is not a replacement for monitoring, App Check, or provider-side anti-abuse controls.
+- The user gets an email-client fallback if Web3Forms is unavailable or has not been configured.
 
-### Optional email notification
+### Web3Forms form delivery
 
-The Vercel `/api/enquiry` route sends a notification only after these Vercel secrets are set:
+Set `WEB3FORMS_ACCESS_KEY` in the Vercel environment for each deployed environment. The build writes it to `web3forms-config.js`, because Web3Forms access keys are public form identifiers intended to run in the browser. Do not place a private Web3Forms dashboard API key in that variable.
 
-- `RESEND_API_KEY`
-- `CONTACT_NOTIFICATION_EMAIL` (typically `mobolajiolakunle8@gmail.com`)
-- `CONTACT_FROM_EMAIL` (a domain/address verified in Resend)
-- `FIREBASE_SERVICE_ACCOUNT_JSON` (server-only Firebase Admin service account)
-
-The route fetches the saved Firestore record by ID before emailing it and marks a successful notification, so a caller cannot supply arbitrary email content or repeat a completed notification. The Firestore record remains the source of truth if delivery fails. Test with a genuine sample lead after configuring Resend.
+In the Web3Forms dashboard, verify the destination inbox, configure any available production-domain restriction and spam protection, and send a real test brief. The contact form sets a useful subject and reply-to address while retaining only the fields the visitor submitted. Web3Forms receives the individual contact brief and creative-notes request; it is not granted access to Firebase or dashboard data.
 
 ## Booking and WhatsApp
 
@@ -66,23 +61,22 @@ The route fetches the saved Firestore record by ID before emailing it and marks 
 
 Firebase Analytics initializes without blocking the website. The site logs:
 
-- `generate_lead` after a Firestore enquiry is saved;
-- `newsletter_opt_in_request` after a newsletter confirmation request is saved;
-- `sign_up` after a recipient confirms newsletter consent;
+- `generate_lead` after a private Firestore enquiry copy is saved;
+- `newsletter_request_sent` after a creative-notes request is sent through Web3Forms and a pending record is captured;
+- `sign_up` only when the optional signed newsletter-confirmation workflow is enabled and a recipient confirms consent;
 - `contact` for email, phone, and WhatsApp actions;
 - `schedule` for booking-link actions.
 
 When `VERCEL_ANALYTICS_ENABLED=true`, the public integration bootstrap also loads Vercel’s Web Analytics endpoint and mirrors the non-sensitive conversion events to Vercel’s event queue. Enable Web Analytics in the Vercel project dashboard before relying on that data. Firebase Analytics remains the active event channel outside Vercel. Review privacy requirements, consent obligations, and cookie disclosures applicable to your audience before enabling tracking.
 
-## Newsletter consent and delivery
+## Creative-notes requests and optional newsletter delivery
 
-- Website newsletter forms save only a **pending** email, source, and timestamp in private `subscribers` documents. A subscriber becomes deliverable only after confirming the email link sent by the server; this prevents a public form from adding an unverified address to a campaign.
-- `api/newsletter-confirmation.js` sends a signed confirmation link, and `api/confirm-subscription.js` changes that pending record to `subscribed` after the recipient confirms it.
-- The administrator dashboard has a deliberate send screen. It verifies the Firebase administrator’s ID token on the server, uses Firebase Admin only server-side, and sends through Resend in batches of up to 100 recipients.
-- `api/newsletter.js` creates a server-side campaign record, supports batch continuation after an interruption, and adds a visible signed unsubscribe link plus `List-Unsubscribe` and one-click unsubscribe headers to every message.
-- `api/unsubscribe.js` validates the signed token and marks the recipient as `unsubscribed`; unsubscribed records are excluded from subsequent campaign batches.
-- Before the first campaign, set `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `PUBLIC_SITE_URL`, and a unique `NEWSLETTER_UNSUBSCRIBE_SECRET` of at least 32 random characters. This server-only secret signs both confirmation and unsubscribe links. Set `CRON_SECRET` as well if a server-side scheduled task will continue an existing campaign.
-- Do not send campaigns until you have a privacy notice, a lawful consent basis, a tested unsubscribe route, and a sender domain verified in Resend. Send a real test campaign to a consenting internal address first.
+- The public creative-notes form sends a **notification request** to the Ambassador Cre8tive inbox through Web3Forms. It also makes a best-effort private `pending` record in `subscribers` for the verified administrator.
+- A Web3Forms notification request is **not** a deliverable newsletter subscription. Do not add an address to a campaign solely because it arrived through the public form. Follow up and obtain the appropriate consent before any marketing delivery.
+- The Audience workspace separates pending newsletter requests from verified subscribers. Pending requests are not included in campaign delivery.
+- The existing signed opt-in and delivery routes remain available only for a later, separately configured consent-based workflow: `api/newsletter-confirmation.js` sends a signed confirmation link, `api/confirm-subscription.js` changes a verified record to `subscribed`, and `api/newsletter.js` sends a Resend campaign in batches with signed unsubscribe handling.
+- Before enabling that optional campaign workflow, set `RESEND_API_KEY`, `CONTACT_FROM_EMAIL`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `PUBLIC_SITE_URL`, and a unique `NEWSLETTER_UNSUBSCRIBE_SECRET` of at least 32 random characters. Set `CRON_SECRET` as well if a server-side scheduled task will continue an existing campaign.
+- Do not send campaigns until you have a privacy notice, a lawful consent basis, a tested unsubscribe route, and a sender domain verified in the delivery provider. Send a real test campaign to a consenting internal address first.
 
 ## Testimonials and client proof
 
@@ -117,7 +111,7 @@ npm run build:vercel
 
 After deploying:
 
-- submit a real test brief and confirm it appears only in the admin dashboard;
+- submit a real test brief and creative-notes request; confirm each reaches the Web3Forms inbox and that any Firebase CRM/request copies remain visible only to the administrator;
 - verify published projects are public while drafts remain private;
 - verify an anonymous visitor cannot read `/enquiries` or `/subscribers`;
 - save and preview a public HTTPS project-image link as the verified administrator;

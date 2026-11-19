@@ -1,6 +1,6 @@
 # Ambassador Cre8tive — Firebase deployment package
 
-This package is the production-ready Ambassador Cre8tive website with Firebase services. For the Vercel deployment path, use `VERCEL_DEPLOYMENT.md`; Firebase Hosting instructions remain included as an alternative.
+This package is the production-ready Ambassador Cre8tive website with Firebase services. For the Vercel deployment path, use `VERCEL_DEPLOYMENT.md`; it is the configured path for the Web3Forms browser form delivery. Firebase Hosting instructions remain included as an alternative.
 
 ## Included
 
@@ -53,4 +53,4 @@ If existing Firebase Storage project-image links need to stay public, deploy the
 - Only the verified `mobolajiolakunle8@gmail.com` Firebase account can manage drafts, public project-image links, projects, private briefs, and newsletter contacts.
 - Realtime Database is locked by default. Cloud Storage denies writes and permits only the former public project-object path for compatibility with older image links; new portfolio images are externally linked.
 - The local Python preview server, local JSON data, Vercel API source, and environment files are intentionally excluded from Firebase Hosting output.
-- Firebase Hosting retains Firestore lead capture and the dashboard. Use the Vercel package for Resend notifications, signed newsletter delivery/unsubscribe routes, and Vercel Web Analytics.
+- Firebase Hosting retains Firestore lead capture and the dashboard. Use the Vercel build path for Web3Forms form delivery, optional signed newsletter delivery/unsubscribe routes, and Vercel Web Analytics. If you deliberately deploy to Firebase Hosting instead, populate the public `web3forms-config.js` form identifier through your own reviewed build/release process; it is blank in source by default.
