@@ -72,4 +72,4 @@ npx firebase login
 npx firebase deploy --only firestore:rules,database
 ```
 
-Then enable Email/Password Authentication and Cloud Firestore in Firebase Console. Cloud Storage remains optional; if existing published Firebase Storage image links need compatibility support, deploy its included read-only rule separately with `npx firebase deploy --only storage`. The current portfolio uses public HTTPS image links and makes no Storage uploads. After Vercel deploys, visit `/admin`, create the approved administrator account, verify the email, and import the starter portfolio.
+Then enable Email/Password Authentication and Cloud Firestore in Firebase Console. Cloud Storage remains optional; if existing published Firebase Storage image links need compatibility support, deploy its included read-only rule separately with `npx firebase deploy --only storage`. The current portfolio uses public HTTPS image links and makes no Storage uploads. After Vercel deploys, visit `/admin`, create the approved administrator account, verify the email, and add only approved portfolio projects.

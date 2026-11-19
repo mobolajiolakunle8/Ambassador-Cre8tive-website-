@@ -40,7 +40,7 @@ The repository is already linked to `website-f3cc6` through `.firebaserc`, so `f
 2. Choose **Set up first access** and create a password for `mobolajiolakunle8@gmail.com`.
 3. Open the verification email sent by Firebase and verify the address.
 4. Return to `/admin`, sign in, and use **I have verified my email** if prompted.
-5. Select **Import starter portfolio** once to move the existing example projects into Firestore.
+5. Add only completed, client-approved projects from the Portfolio workspace when they are ready to publish.
 
 Only that verified email can read drafts or create, edit, publish, and delete projects. Each project image is supplied as a public HTTPS image link (starter `assets/...` paths remain supported); the dashboard validates and previews the link before saving. It can also read private project briefs, pending creative-notes requests, and any separately verified newsletter-consent records in the dashboard. Public creative-notes requests are delivered to the studio through Web3Forms and stored only as pending records; they do not become campaign recipients automatically. The optional Vercel signed-confirmation route remains available only if a consent-based newsletter delivery service is later configured. The Firestore rules enforce this on the server; client-side checks are only convenience features.
 

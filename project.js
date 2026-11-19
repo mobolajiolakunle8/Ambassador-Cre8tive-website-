@@ -2,51 +2,13 @@
   const root = document.querySelector('[data-project-root]');
   if (!root) return;
 
-  const fallbackProjects = {
-    'orbit-co': {
-      id: 'orbit-co', title: 'Orbit & Co.', client: 'Brand identity project', category: 'identity', date: '2026-05-14', image: 'assets/project_01.jpg', imageAlt: 'African-inspired brand identity stationery and packaging',
-      description: 'A refined visual identity and print direction built for a contemporary lifestyle brand.',
-      challenge: 'Create a polished visual identity that could give Orbit & Co. a clear, recognisable presence across everyday brand touchpoints.',
-      approach: 'We shaped a refined creative direction, then translated it into a flexible visual system so type, tone, and printed details could feel connected.',
-      deliverables: ['Core visual identity', 'Colour and typography system', 'Stationery direction', 'Print-ready assets'],
-      outcome: 'A cohesive identity foundation designed to make every customer-facing touchpoint feel intentional and recognisable.'
-    },
-    wealthwise: {
-      id: 'wealthwise', title: 'Wealthwise', client: 'Digital content direction', category: 'digital', date: '2026-04-21', image: 'assets/project_02.jpg', imageAlt: 'African creative professional working on a digital design project',
-      description: 'A digital campaign system for clear, confident social communication.',
-      challenge: 'Make complex financial ideas feel more approachable through a confident, easy-to-follow digital content direction.',
-      approach: 'We established a focused content system with clear hierarchy, adaptable layouts, and a visual rhythm suited to everyday digital communication.',
-      deliverables: ['Digital content direction', 'Social content layouts', 'Campaign graphic system', 'Reusable visual guidance'],
-      outcome: 'A practical direction designed to help financial messages feel clearer, more consistent, and easier to engage with.'
-    },
-    'common-ground': {
-      id: 'common-ground', title: 'Common Ground', client: 'Campaign creative direction', category: 'campaign', date: '2026-03-03', image: 'assets/project_03.jpg', imageAlt: 'African fashion campaign photographed in an urban setting',
-      description: 'Bold campaign imagery created to bring a vibrant brand story to life.',
-      challenge: 'Give a campaign story enough visual distinction to cut through while keeping every touchpoint part of one clear idea.',
-      approach: 'We used a bold image-led direction and a repeatable set of campaign elements to create consistency from the hero visual through supporting assets.',
-      deliverables: ['Campaign creative direction', 'Hero visual direction', 'Digital campaign assets', 'Launch-ready artwork'],
-      outcome: 'A cohesive campaign toolkit built to carry one memorable idea across multiple customer moments.'
-    },
-    northstar: {
-      id: 'northstar', title: 'Northstar', client: 'Product packaging identity', category: 'identity', date: '2026-02-10', image: 'assets/project_04.jpg', imageAlt: 'African-inspired artisan product packaging and brand visuals',
-      description: 'A product identity system that combines contemporary form with African-inspired pattern.',
-      challenge: 'Create a product identity with enough personality to feel distinctive while remaining practical across packaging and digital materials.',
-      approach: 'We balanced contemporary form with considered pattern, material, and typography decisions to build a recognisable identity system.',
-      deliverables: ['Product identity system', 'Packaging direction', 'Typography and colour rules', 'Digital visual assets'],
-      outcome: 'An adaptable identity designed to give the product a confident, coherent presence wherever people meet it.'
-    },
-    'gather-together': {
-      id: 'gather-together', title: 'Gather Together', client: 'Print and publication design', category: 'print', date: '2026-01-22', image: 'assets/project_05.jpg', imageAlt: 'African-inspired printed publications and invitations on a studio table',
-      description: 'A tactile print system for editorial materials, invitations, and campaign collateral.',
-      challenge: 'Create printed materials that could make an occasion feel considered, warm, and consistently branded from invitation to follow-up piece.',
-      approach: 'We developed a tactile editorial direction with a clear information hierarchy and visual details that translate beautifully in print.',
-      deliverables: ['Editorial print direction', 'Invitation and collateral layouts', 'Print-ready artwork', 'Production guidance'],
-      outcome: 'A unified print system designed to make each physical touchpoint feel purposeful and memorable.'
-    }
-  };
-
+  // These legacy placeholder IDs are kept private from public rendering even if an older
+  // Firestore import still exists. The admin dashboard provides a deliberate cleanup action.
+  const RETIRED_STARTER_PROJECT_IDS = new Set([
+    'orbit-co', 'wealthwise', 'common-ground', 'northstar', 'gather-together',
+  ]);
   const query = new URLSearchParams(window.location.search);
-  const requestedId = query.get('id') || 'orbit-co';
+  const requestedId = String(query.get('id') || '').trim();
   const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&quot;' })[char]);
   const categoryLabel = (category) => ({ identity: 'Brand identity', campaign: 'Campaign', digital: 'Digital content', print: 'Print' }[category] || 'Creative work');
   const isStarterAssetImage = (value = '') => /^assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.[a-z0-9_-]+)*\.(?:avif|gif|jpe?g|png|webp|svg)$/i.test(String(value));
@@ -76,7 +38,7 @@
 
   const renderProject = (project) => {
     const title = project.title || 'Project case study';
-    const image = safeProjectImageUrl(project.image) || 'assets/project_01.jpg';
+    const image = safeProjectImageUrl(project.image) || 'assets/about.jpg';
     const description = project.description || 'A focused creative direction designed to make the next brand touchpoint clearer and more memorable.';
     const challenge = project.challenge || 'Create a clearer, more confident way for this brand to communicate its value.';
     const approach = project.approach || 'We brought strategy, visual direction, and practical design thinking together around one focused idea.';
@@ -118,11 +80,10 @@
     }
   };
 
-  const fallback = fallbackProjects[requestedId];
-  // Render a useful local starter case study immediately, then replace it with the live Firestore
-  // record whenever Firebase is available. This keeps the page readable during initial deployment.
-  if (fallback) renderProject(fallback);
-  else renderNotFound();
+  if (!requestedId || RETIRED_STARTER_PROJECT_IDS.has(requestedId)) {
+    renderNotFound();
+    return;
+  }
 
   (async () => {
     try {
@@ -133,13 +94,11 @@
       const { doc, onSnapshot } = firestore;
       onSnapshot(doc(db, 'projects', requestedId), (snapshot) => {
         const project = snapshot.exists() ? { ...snapshot.data(), id: snapshot.id } : null;
-        if (project && project.published !== false) renderProject(project);
-        else if (!fallback) renderNotFound();
-      }, () => {
-        // Retain the starter content when Firebase is not configured in a local preview.
-      });
+        if (project && project.published !== false && !RETIRED_STARTER_PROJECT_IDS.has(project.id)) renderProject(project);
+        else renderNotFound();
+      }, renderNotFound);
     } catch {
-      // Retain the local case-study fallback in network-restricted previews.
+      renderNotFound();
     }
   })();
 })();

@@ -3,8 +3,16 @@
   const featuredRoot = document.querySelector('[data-featured-projects]');
   const testimonialRoot = document.querySelector('[data-client-proof]');
   const testimonialSection = document.querySelector('[data-client-proof-section]');
+  const galleryEmpty = document.querySelector('[data-project-gallery-empty]');
+  const featuredEmpty = document.querySelector('[data-featured-projects-empty]');
+  const filterBar = document.querySelector('[data-project-filters]');
   if (!gallery && !featuredRoot && !testimonialRoot) return;
 
+  // Do not publicly reintroduce the former placeholder portfolio if an older Firebase import
+  // still exists. The verified admin can remove these legacy records from the dashboard.
+  const RETIRED_STARTER_PROJECT_IDS = new Set([
+    'orbit-co', 'wealthwise', 'common-ground', 'northstar', 'gather-together',
+  ]);
   const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&quot;' })[char]);
   const categoryLabel = (category) => ({
     identity: 'Brand identity',
@@ -21,15 +29,30 @@
       return url.protocol === 'https:' && url.hostname && !url.username && !url.password ? url.toString() : '';
     } catch { return ''; }
   };
-  const imageSource = (project) => safeProjectImageUrl(project.image) || 'assets/project_01.jpg';
+  const imageSource = (project) => safeProjectImageUrl(project.image) || 'assets/about.jpg';
   const publishedProjects = (projects) => projects
-    .filter((project) => project && project.published !== false && safeProjectImageUrl(project.image) && project.title && project.id)
+    .filter((project) => (
+      project
+      && !RETIRED_STARTER_PROJECT_IDS.has(project.id)
+      && project.published !== false
+      && safeProjectImageUrl(project.image)
+      && project.title
+      && project.id
+    ))
     .sort((a, b) => Number(b.featured) - Number(a.featured) || String(b.date || '').localeCompare(String(a.date || '')));
   const projectHref = (project) => `project.html?id=${encodeURIComponent(project.id)}`;
   const projectLabel = (project) => [categoryLabel(project.category), project.client].filter(Boolean).join(' · ');
 
   const renderGallery = (projects) => {
-    if (!gallery || !projects.length) return;
+    if (!gallery) return;
+    const hasProjects = projects.length > 0;
+    gallery.hidden = !hasProjects;
+    if (galleryEmpty) galleryEmpty.hidden = hasProjects;
+    if (filterBar) filterBar.hidden = !hasProjects;
+    if (!hasProjects) {
+      gallery.innerHTML = '';
+      return;
+    }
     gallery.innerHTML = projects.map((project) => `
       <article class="portfolio-item reveal is-visible" data-filter-item="${escapeHtml(project.category)}">
         <a class="portfolio-card" href="${projectHref(project)}">
@@ -41,7 +64,14 @@
   };
 
   const renderFeatured = (projects) => {
-    if (!featuredRoot || !projects.length) return;
+    if (!featuredRoot) return;
+    const hasProjects = projects.length > 0;
+    featuredRoot.hidden = !hasProjects;
+    if (featuredEmpty) featuredEmpty.hidden = hasProjects;
+    if (!hasProjects) {
+      featuredRoot.innerHTML = '';
+      return;
+    }
     const selected = projects.filter((project) => project.featured);
     const cards = [...selected, ...projects.filter((project) => !project.featured)].slice(0, 3);
     featuredRoot.innerHTML = cards.map((project, index) => `
@@ -55,15 +85,18 @@
   const renderTestimonials = (projects) => {
     if (!testimonialRoot || !testimonialSection) return;
     const quotes = projects.filter((project) => String(project.testimonial || '').trim()).slice(0, 2);
-    if (!quotes.length) return;
+    if (!quotes.length) {
+      testimonialSection.hidden = true;
+      return;
+    }
     testimonialRoot.innerHTML = quotes.map((project) => `
       <article class="client-proof__quote reveal is-visible"><blockquote>“${escapeHtml(project.testimonial)}”</blockquote><p>— ${escapeHtml(project.testimonialAttribution || 'Client perspective')}</p></article>
     `).join('');
     testimonialSection.hidden = false;
   };
 
-  // Firebase provides a real-time published-project feed. If Firebase has not been enabled yet,
-  // the semantic static cards in each page remain visible as a graceful fallback.
+  // Firebase provides the only public portfolio feed. Empty states remain truthful until real,
+  // published case studies are added through the verified dashboard.
   (async () => {
     try {
       const [{ db }, firestore] = await Promise.all([
@@ -74,16 +107,14 @@
       const publishedQuery = query(collection(db, 'projects'), where('published', '==', true));
       onSnapshot(publishedQuery, (snapshot) => {
         const projects = publishedProjects(snapshot.docs.map((item) => ({ ...item.data(), id: item.id })));
-        // Keep local starter cards until the administrator imports or creates Firebase projects.
-        if (!projects.length) return;
         renderGallery(projects);
         renderFeatured(projects);
         renderTestimonials(projects);
       }, () => {
-        // Firebase setup may be incomplete during local preview; static fallback remains available.
+        // Keep the honest static empty state if Firebase is unavailable.
       });
     } catch {
-      // Network-restricted previews and pre-Firebase deployments retain the static fallback.
+      // Keep the honest static empty state in network-restricted previews.
     }
   })();
 })();

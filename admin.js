@@ -44,8 +44,8 @@
   const formHeading = $('[data-form-heading]');
   const cancelEdit = $('[data-cancel-edit]');
   const saveProject = $('[data-save-project]');
-  const seedPanel = $('[data-seed-panel]');
-  const seedButton = $('[data-seed-projects]');
+  const legacyStarterPanel = $('[data-legacy-starter-panel]');
+  const legacyStarterButton = $('[data-remove-starter-projects]');
   const enquiryList = $('[data-enquiry-list]');
   const subscriberList = $('[data-subscriber-list]');
   const newsletterRequestList = $('[data-newsletter-request-list]');
@@ -86,28 +86,12 @@
     contactPhone: '0903 019 2034',
   });
 
-  const starterProjects = [
-    {
-      id: 'orbit-co', title: 'Orbit & Co.', client: 'Brand identity project', category: 'identity', description: 'A refined visual identity and print direction built for a contemporary lifestyle brand.', image: 'assets/project_01.jpg', imageAlt: 'African-inspired brand identity stationery and packaging', date: '2026-05-14', featured: true, published: true,
-      challenge: 'Create a polished visual identity that could give Orbit & Co. a clear, recognisable presence across everyday brand touchpoints.', approach: 'We shaped a refined creative direction, then translated it into a flexible visual system so type, tone, and printed details could feel connected.', deliverables: ['Core visual identity', 'Colour and typography system', 'Stationery direction', 'Print-ready assets'], outcome: 'A cohesive identity foundation designed to make every customer-facing touchpoint feel intentional and recognisable.', testimonial: '', testimonialAttribution: '', storagePath: ''
-    },
-    {
-      id: 'wealthwise', title: 'Wealthwise', client: 'Digital content direction', category: 'digital', description: 'A digital campaign system for clear, confident social communication.', image: 'assets/project_02.jpg', imageAlt: 'African creative professional working on a digital design project', date: '2026-04-21', featured: false, published: true,
-      challenge: 'Make complex financial ideas feel more approachable through a confident, easy-to-follow digital content direction.', approach: 'We established a focused content system with clear hierarchy, adaptable layouts, and a visual rhythm suited to everyday digital communication.', deliverables: ['Digital content direction', 'Social content layouts', 'Campaign graphic system', 'Reusable visual guidance'], outcome: 'A practical direction designed to help financial messages feel clearer, more consistent, and easier to engage with.', testimonial: '', testimonialAttribution: '', storagePath: ''
-    },
-    {
-      id: 'common-ground', title: 'Common Ground', client: 'Campaign creative direction', category: 'campaign', description: 'Bold campaign imagery created to bring a vibrant brand story to life.', image: 'assets/project_03.jpg', imageAlt: 'African fashion campaign photographed in an urban setting', date: '2026-03-03', featured: false, published: true,
-      challenge: 'Give a campaign story enough visual distinction to cut through while keeping every touchpoint part of one clear idea.', approach: 'We used a bold image-led direction and a repeatable set of campaign elements to create consistency from the hero visual through supporting assets.', deliverables: ['Campaign creative direction', 'Hero visual direction', 'Digital campaign assets', 'Launch-ready artwork'], outcome: 'A cohesive campaign toolkit built to carry one memorable idea across multiple customer moments.', testimonial: '', testimonialAttribution: '', storagePath: ''
-    },
-    {
-      id: 'northstar', title: 'Northstar', client: 'Product packaging identity', category: 'identity', description: 'A product identity system that combines contemporary form with African-inspired pattern.', image: 'assets/project_04.jpg', imageAlt: 'African-inspired artisan product packaging and brand visuals', date: '2026-02-10', featured: false, published: true,
-      challenge: 'Create a product identity with enough personality to feel distinctive while remaining practical across packaging and digital materials.', approach: 'We balanced contemporary form with considered pattern, material, and typography decisions to build a recognisable identity system.', deliverables: ['Product identity system', 'Packaging direction', 'Typography and colour rules', 'Digital visual assets'], outcome: 'An adaptable identity designed to give the product a confident, coherent presence wherever people meet it.', testimonial: '', testimonialAttribution: '', storagePath: ''
-    },
-    {
-      id: 'gather-together', title: 'Gather Together', client: 'Print and publication design', category: 'print', description: 'A tactile print system for editorial materials, invitations, and campaign collateral.', image: 'assets/project_05.jpg', imageAlt: 'African-inspired printed publications and invitations on a studio table', date: '2026-01-22', featured: false, published: true,
-      challenge: 'Create printed materials that could make an occasion feel considered, warm, and consistently branded from invitation to follow-up piece.', approach: 'We developed a tactile editorial direction with a clear information hierarchy and visual details that translate beautifully in print.', deliverables: ['Editorial print direction', 'Invitation and collateral layouts', 'Print-ready artwork', 'Production guidance'], outcome: 'A unified print system designed to make each physical touchpoint feel purposeful and memorable.', testimonial: '', testimonialAttribution: '', storagePath: ''
-    },
-  ];
+  // Placeholder case studies are never imported again. This allowlist exists only to give
+  // the verified administrator a deliberate cleanup option for a prior Firestore import.
+  const LEGACY_STARTER_PROJECT_IDS = new Set([
+    'orbit-co', 'wealthwise', 'common-ground', 'northstar', 'gather-together',
+  ]);
+  const portfolioProjects = () => projects.filter((project) => !LEGACY_STARTER_PROJECT_IDS.has(project.id));
 
   const setMessage = (element, message = '', isError = false) => {
     if (!element) return;
@@ -145,7 +129,8 @@
   const enquiryStatusLabel = (status) => ({ new: 'New', contacted: 'Contacted', proposal: 'Proposal', won: 'Won', closed: 'Closed' }[status] || 'New');
   const setCount = (selector, value) => document.querySelectorAll(selector).forEach((element) => { element.textContent = value; });
   const renderDashboardOverview = () => {
-    setCount('[data-overview-published]', projects.filter((project) => project.published).length);
+    const visibleProjects = portfolioProjects();
+    setCount('[data-overview-published]', visibleProjects.filter((project) => project.published).length);
     setCount('[data-overview-enquiries]', enquiries.filter((enquiry) => enquiry.status === 'new').length);
     setCount('[data-overview-subscribers]', subscribers.length);
     setCount('[data-overview-newsletter-requests]', newsletterRequests.length);
@@ -160,7 +145,7 @@
 
     const projectRoot = $('[data-dashboard-recent-projects]');
     if (projectRoot) {
-      const recent = [...projects].sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).slice(0, 3);
+      const recent = [...visibleProjects].sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).slice(0, 3);
       projectRoot.innerHTML = recent.length
         ? recent.map((project) => `<article class="admin-overview-item"><div><small>${escapeHtml(categoryLabel(project.category))} · ${escapeHtml(dateLabel(project.date))}</small><strong>${escapeHtml(project.title || 'Untitled project')}</strong><span>${project.published ? 'Published to the portfolio' : 'Saved as a private draft'}</span></div><b class="${project.published ? 'is-live' : 'is-draft'}">${project.published ? 'Live' : 'Draft'}</b></article>`).join('')
         : '<p class="admin-empty">Add a first project to begin building the public portfolio.</p>';
@@ -168,8 +153,9 @@
   };
 
   const updateStats = () => {
-    setCount('[data-project-count]', projects.length);
-    setCount('[data-published-count]', projects.filter((project) => project.published).length);
+    const visibleProjects = portfolioProjects();
+    setCount('[data-project-count]', visibleProjects.length);
+    setCount('[data-published-count]', visibleProjects.filter((project) => project.published).length);
     setCount('[data-enquiry-count]', enquiries.filter((enquiry) => enquiry.status === 'new').length);
     setCount('[data-subscriber-count]', subscribers.length);
     renderDashboardOverview();
@@ -287,16 +273,18 @@
 
   const renderProjects = () => {
     updateStats();
-    if (seedPanel) seedPanel.hidden = projects.length > 0;
-    if (!projects.length) {
-      projectList.innerHTML = '<p class="admin-empty">No Firebase projects are saved yet. Import the starter portfolio or add your first completed project.</p>';
+    const legacyStarterCount = projects.filter((project) => LEGACY_STARTER_PROJECT_IDS.has(project.id)).length;
+    const visibleProjects = portfolioProjects();
+    if (legacyStarterPanel) legacyStarterPanel.hidden = legacyStarterCount === 0;
+    if (!visibleProjects.length) {
+      projectList.innerHTML = '<p class="admin-empty">No portfolio projects are saved yet. Add a completed, client-approved project when you are ready.</p>';
       return;
     }
-    projectList.innerHTML = [...projects]
+    projectList.innerHTML = [...visibleProjects]
       .sort((a, b) => Number(b.featured) - Number(a.featured) || String(b.date || '').localeCompare(String(a.date || '')))
       .map((project) => `
         <article class="admin-project-row" data-row-id="${escapeHtml(project.id)}">
-          <div class="admin-project-row__image"><img src="${escapeHtml(safeProjectImageUrl(project.image) || 'assets/project_01.jpg')}" alt="${escapeHtml(project.imageAlt || project.title)}" /></div>
+          <div class="admin-project-row__image"><img src="${escapeHtml(safeProjectImageUrl(project.image) || 'assets/about.jpg')}" alt="${escapeHtml(project.imageAlt || project.title)}" /></div>
           <div class="admin-project-row__info">
             <small>${escapeHtml(categoryLabel(project.category))} · ${escapeHtml(dateLabel(project.date))}</small>
             <h3>${escapeHtml(project.title)}</h3>
@@ -646,22 +634,23 @@
     }
   };
 
-  const importStarterProjects = async () => {
-    if (!firebase || !firestore || !currentUser || projects.length || !window.confirm('Import the five existing starter projects into Firestore?')) return;
-    seedButton.disabled = true;
-    const message = $('[data-seed-message]');
-    setMessage(message, 'Importing starter portfolio…');
+  const removeLegacyStarterProjects = async () => {
+    if (!firebase || !firestore || !currentUser) return;
+    const legacyProjects = projects.filter((project) => LEGACY_STARTER_PROJECT_IDS.has(project.id));
+    if (!legacyProjects.length) return;
+    const count = legacyProjects.length;
+    if (!window.confirm(`Permanently delete ${count} legacy starter project${count === 1 ? '' : 's'} from Firestore? This cannot be undone.`)) return;
+    const message = $('[data-legacy-starter-message]');
+    legacyStarterButton.disabled = true;
+    setMessage(message, 'Removing legacy starter records…');
     try {
       const batch = firestore.writeBatch(firebase.db);
-      starterProjects.forEach((project) => {
-        const reference = firestore.doc(firebase.db, 'projects', project.id);
-        batch.set(reference, { ...project, createdAt: firestore.serverTimestamp(), updatedAt: firestore.serverTimestamp() });
-      });
+      legacyProjects.forEach((project) => batch.delete(firestore.doc(firebase.db, 'projects', project.id)));
       await batch.commit();
-      setMessage(message, 'Starter portfolio imported successfully.');
+      setMessage(message, 'Legacy starter records removed from Firestore.');
     } catch (error) {
       setMessage(message, authErrorMessage(error), true);
-      seedButton.disabled = false;
+      legacyStarterButton.disabled = false;
     }
   };
 
@@ -816,7 +805,7 @@
       if (editButton) beginEdit(editButton.dataset.editProject);
       if (deleteButton) deleteCurrentProject(deleteButton.dataset.deleteProject, deleteButton);
     });
-    seedButton?.addEventListener('click', importStarterProjects);
+    legacyStarterButton?.addEventListener('click', removeLegacyStarterProjects);
   };
 
   (async () => {

@@ -45,7 +45,7 @@ If existing Firebase Storage project-image links need to stay public, deploy the
 2. Select **Set up first access**.
 3. Create a password for `mobolajiolakunle8@gmail.com`.
 4. Verify the Firebase email.
-5. Sign in and select **Import starter portfolio** once.
+5. Sign in and add only completed, client-approved portfolio projects when they are ready.
 
 ## Security notes
 
